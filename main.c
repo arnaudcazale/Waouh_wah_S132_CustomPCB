@@ -874,20 +874,9 @@ static void bsp_event_handler(bsp_event_t event)
 
     switch (event)
     {
+        //PRESET_DOWN PRESS
         case BSP_EVENT_KEY_0:
-            if(m_preset_selection_value == 3){
-              break;
-            }else if (!m_is_on_edit_mode){
-              m_preset_selection_value++;
-              NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
-              preset_selection_value_update(&m_wah, m_preset_selection_value);
-              update_led(m_preset_selection_value);
-              //update_preset();
-            }
-            break;
-
-        case BSP_EVENT_KEY_1:
-            if(m_preset_selection_value == 0){
+             if(m_preset_selection_value == 0){
               break;
             }else if (!m_is_on_edit_mode){
               m_preset_selection_value--;
@@ -897,6 +886,24 @@ static void bsp_event_handler(bsp_event_t event)
               //update_preset();
             }
             break;
+
+        //PRESET_FOOTSWITCH PRESS
+        case BSP_EVENT_KEY_1:
+            break;
+
+        //PRESET_UP PRESS
+        case BSP_EVENT_KEY_2:
+        if(m_preset_selection_value == 3){
+              break;
+            }else if (!m_is_on_edit_mode){
+              m_preset_selection_value++;
+              NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
+              preset_selection_value_update(&m_wah, m_preset_selection_value);
+              update_led(m_preset_selection_value);
+              //update_preset();
+            }
+            break;
+           
         
         case BSP_EVENT_SLEEP:
             //sleep_mode_enter();
@@ -982,6 +989,9 @@ static void buttons_leds_init(bool * p_erase_bonds, bool * p_restore_factory)
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
 
     *p_restore_factory = (startup_event == BSP_EVENT_RESTORE_MEMORY);
+
+    //Init LED on at startup
+    bsp_board_led_on(m_preset_selection_value);
 }
 
 

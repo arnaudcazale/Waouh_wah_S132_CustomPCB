@@ -11,36 +11,13 @@ preset_config_8_t preset[PRESET_NUMBER];
 calib_config_32_t calibration_32;
 calib_config_8_t calibration;
 
-void clear_all_leds()
-{
-    nrf_gpio_pin_set(LED_1); 
-    nrf_gpio_pin_set(LED_2); 
-    nrf_gpio_pin_set(LED_3); 
-    nrf_gpio_pin_set(LED_4); 
-}
-
 /*******************************************************************************
 
 *******************************************************************************/
 void update_led(uint8_t led) 
 {
-      clear_all_leds();
-
-      switch(led)
-      {
-        case 0:
-            nrf_gpio_pin_clear(LED_1); 
-          break;
-        case 1:
-            nrf_gpio_pin_clear(LED_2); 
-          break;
-        case 2:
-            nrf_gpio_pin_clear(LED_3); 
-          break;
-        case 3:
-            nrf_gpio_pin_clear(LED_4); 
-          break;
-      }
+      bsp_board_leds_off();
+      bsp_board_led_on(led);
 }
 
 /*******************************************************************************

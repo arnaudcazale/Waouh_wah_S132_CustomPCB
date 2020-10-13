@@ -179,7 +179,6 @@ typedef PACKED( struct
 }) calib_config_8_t;
 
 
-void clear_all_leds();
 void update_led(uint8_t led);
 
 void load_presets_from_flash(bool);
