@@ -84,6 +84,8 @@
 #include "ble_wah.h"
 #include "utils.h"
 #include "saadc.h"
+#include "drv_AD5263.h"
+#include "drv_DS1882.h"
 
 
 //#define DEBUG
@@ -136,6 +138,10 @@ BLE_WAH_DEF(m_wah);                                                             
 BLE_ADVERTISING_DEF(m_advertising);                                             /**< Advertising module instance. */
 
 //APP_TIMER_DEF(m_notification_timer_id);
+/* TWI instance ID. */
+#define TWI_INSTANCE_ID     0
+/* TWI instance. */
+static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 
 static uint8_t m_preset_selection_value = 0;
 static uint8_t m_is_on_edit_mode = false;
@@ -1067,6 +1073,54 @@ static void advertising_start(bool erase_bonds)
     }
 }
 
+static void twi_init(void)
+{
+    uint32_t            err_code;
+    drv_AD5263_init_t  AD5263_init_params;
+    drv_DS1882_init_t  DS1882_init_params;
+  
+    static const nrf_drv_twi_config_t twi_config =
+    {
+        .scl = TWI_SCL,
+        .sda = TWI_SDA,
+        .frequency          = NRF_TWI_FREQ_400K,
+        .interrupt_priority = APP_IRQ_PRIORITY_LOW,  //APP_IRQ_PRIORITY_LOW 
+    };
+  
+    AD5263_init_params.p_twi_instance = &m_twi;
+    AD5263_init_params.p_twi_cfg = &twi_config;
+
+    err_code = drv_AD5263_init(&AD5263_init_params);
+    APP_ERROR_CHECK(err_code);
+
+    DS1882_init_params.p_twi_instance = &m_twi;
+    DS1882_init_params.p_twi_cfg = &twi_config;
+
+    err_code = drv_DS1882_init(&DS1882_init_params);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_twi_init(&m_twi, &twi_config, NULL, NULL);
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_twi_enable(&m_twi);
+
+    nrf_delay_ms(100);
+
+     //Write/read I2C
+//     uint8_t data;
+//     uint8_t data_read;
+//     uint8_t instruction_byte = 0x04;
+//
+//     data = 112;
+//
+//     drv_AD5263_write(AD5263_ADDR, instruction_byte, &data);
+//     drv_AD5263_read(AD5263_ADDR, &data_read);
+//
+//     NRF_LOG_INFO("drv_AD5263_read %d", data_read);
+
+}
+
+
 
 /**@brief Function for application main entry.
  */
@@ -1079,6 +1133,8 @@ int main(void)
 
     // Initialize.
     log_init();
+
+    twi_init();
 
     timers_init();
     buttons_leds_init(&erase_bonds, &restore_factory);
@@ -1099,8 +1155,6 @@ int main(void)
 
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
-
-//    nrf_gpio_cfg_input(9,NRF_GPIO_PIN_PULLUP);
     
     advertising_start(erase_bonds);
     // Enter main loop.

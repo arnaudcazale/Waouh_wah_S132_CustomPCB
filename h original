@@ -1,0 +1,71 @@
+[33mcommit b32c82440a256f29f316c60d7f4d6e51eeb3edfb[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Tue Oct 13 15:14:14 2020 +0200
+
+    clean project
+
+[33mcommit 08d915d14b6947557463a3e45cb4aedb2821dd6c[m[33m ([m[1;31moriginal/main[m[33m)[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Tue Oct 13 10:42:03 2020 +0200
+
+    fix LEDs
+
+[33mcommit 7ef38b3f4234efe0b0fe90b99a3af318901966ac[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Tue Oct 13 10:22:37 2020 +0200
+
+    add LEDS to custom PCB
+
+[33mcommit 3825990c79969b1f4ea162f50ce2c7d6ad3885b8[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Sat Oct 3 00:06:15 2020 +0200
+
+    confirm stored data by sending notifs
+
+[33mcommit 99ffe5c7c2013978cf50c1d02a4379926c3169e4[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Fri Oct 2 16:24:10 2020 +0200
+
+    add calibration characteristic
+
+[33mcommit 250df2412158f9d4c4d25ed36a0795e7a63d15ad[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Fri Oct 2 12:31:06 2020 +0200
+
+    add OUTPUT folder
+
+[33mcommit d6fc4d3b116886d599846dedc2af183c35f43961[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Fri Oct 2 12:21:42 2020 +0200
+
+    add Garbage collector
+
+[33mcommit 20f63152d34be9f9fd48db853ae29ae54d29d83e[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Wed Sep 30 11:45:49 2020 +0200
+
+    add COLOR
+
+[33mcommit 6757e2ab6153c3f39ca0d595de4dd37e63f48a14[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Tue Sep 29 20:19:23 2020 +0200
+
+    fixed parsing uint16_t + enlarge interval_parameters
+
+[33mcommit f1f90f82099eca3428e07c2fdee492338ebec136[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Tue Sep 29 12:24:47 2020 +0200
+
+    debug EDIT_MODE
+
+[33mcommit d7eab23ed917eba83190cb7a1a11a6da3452f72c[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Mon Sep 28 13:03:26 2020 +0200
+
+    add read to pedal_value
+
+[33mcommit 9cf4c73576dbafabe1d5f241e85163ac85f1f42f[m
+Author: arnaud cazale <arnaud.cazale@gmail.com>
+Date:   Fri Sep 25 10:58:19 2020 +0200
+
+    first commit

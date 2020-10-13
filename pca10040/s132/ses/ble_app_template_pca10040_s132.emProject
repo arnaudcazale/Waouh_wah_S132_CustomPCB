@@ -88,6 +88,9 @@
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_timer.c" />
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_ppi.c" />
       <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_ppi.c" />
+      <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_twi.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twi.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twim.c" />
     </folder>
     <folder Name="Board Support">
       <file file_name="../../../../../../components/libraries/bsp/bsp.c" />
@@ -102,6 +105,10 @@
       <file file_name="../../../utils.h" />
       <file file_name="../../../saadc.c" />
       <file file_name="../../../saadc.h" />
+      <file file_name="../../../drv_AD5263.c" />
+      <file file_name="../../../drv_AD5263.h" />
+      <file file_name="../../../drv_DS1882.c" />
+      <file file_name="../../../drv_DS1882.h" />
     </folder>
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT.c" />
