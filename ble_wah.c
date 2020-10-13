@@ -1237,12 +1237,18 @@ void send_notif(uint8_t idx_prst)
 void update_preset(uint8_t idx_prst)
 {
     debug_preset(idx_prst);
+
+    if(preset[idx_prst].MODE == MANUAL_WAH_MODE)
+    {
+
+    }
+
 }
 
 void debug_preset (uint8_t idx_prst)
 {
     #ifdef DEBUG_PRESET
-      NRF_LOG_INFO("************INTO RUNTIME STRUCTURE**************");        
+      NRF_LOG_INFO("************INTO RUNTIME PRESET_STRUCTURE**************");        
       NRF_LOG_INFO("PRESET_              %d", idx_prst);
       NRF_LOG_INFO("FC1 =                %d", preset[idx_prst].FC1);
       NRF_LOG_INFO("FC2 =                %d", preset[idx_prst].FC2);
@@ -1261,5 +1267,6 @@ void debug_preset (uint8_t idx_prst)
       NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[idx_prst].MIX_DRY_WET); 
       NRF_LOG_INFO("FILTER_TYPE =        %d", preset[idx_prst].FILTER_TYPE); 
       NRF_LOG_INFO("NAME =               %s", preset[idx_prst].NAME); 
+      NRF_LOG_INFO("********************************************************");
     #endif
 }

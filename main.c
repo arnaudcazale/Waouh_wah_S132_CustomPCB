@@ -876,6 +876,7 @@ static void bsp_event_handler(bsp_event_t event)
     {
         //PRESET_DOWN PRESS
         case BSP_EVENT_KEY_0:
+             NRF_LOG_INFO("PRESET_DOWN PRESS \r\n");
              if(m_preset_selection_value == 0){
               break;
             }else if (!m_is_on_edit_mode){
@@ -883,16 +884,18 @@ static void bsp_event_handler(bsp_event_t event)
               NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
               preset_selection_value_update(&m_wah, m_preset_selection_value);
               update_led(m_preset_selection_value);
-              //update_preset();
+              update_preset(m_preset_selection_value);
             }
             break;
 
         //PRESET_FOOTSWITCH PRESS
         case BSP_EVENT_KEY_1:
+        NRF_LOG_INFO("FOOTSWITCH PRESS \r\n");
             break;
 
         //PRESET_UP PRESS
         case BSP_EVENT_KEY_2:
+        NRF_LOG_INFO("PRESET_UP PRESS \r\n");
         if(m_preset_selection_value == 3){
               break;
             }else if (!m_is_on_edit_mode){
@@ -900,7 +903,7 @@ static void bsp_event_handler(bsp_event_t event)
               NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
               preset_selection_value_update(&m_wah, m_preset_selection_value);
               update_led(m_preset_selection_value);
-              //update_preset();
+              update_preset(m_preset_selection_value);
             }
             break;
            
@@ -1096,6 +1099,8 @@ int main(void)
 
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
+
+//    nrf_gpio_cfg_input(9,NRF_GPIO_PIN_PULLUP);
     
     advertising_start(erase_bonds);
     // Enter main loop.
