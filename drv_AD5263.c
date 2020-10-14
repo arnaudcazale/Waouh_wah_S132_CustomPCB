@@ -1,5 +1,4 @@
 #include "drv_AD5263.h"
-#include "nrf_log.h"
 
 static struct
 {
@@ -25,11 +24,11 @@ uint32_t drv_AD5263_init(drv_AD5263_init_t * p_params)
     return NRF_SUCCESS;
 }
 
-int drv_AD5263_write(unsigned char slave_addr, unsigned char instruction_byte, unsigned char const * p_data)
+int drv_AD5263_write(unsigned char slave_addr, unsigned char channel_select, unsigned char const * p_data)
 {
     uint32_t err_code;
     uint8_t buffer[2];
-    buffer[0] = instruction_byte;
+    buffer[0] = channel_select << 5;
     memcpy(&buffer[1], p_data, 1);
 
     err_code = nrf_drv_twi_tx( m_AD5263.init.p_twi_instance,
@@ -48,16 +47,6 @@ int drv_AD5263_write(unsigned char slave_addr, unsigned char instruction_byte, u
 int drv_AD5263_read(unsigned char slave_addr, unsigned char * data)
 {
     uint32_t err_code;
-
-//    err_code = nrf_drv_twi_tx( m_AD5245.init.p_twi_instance,
-//                               slave_addr,
-//                               &reg_addr,
-//                               1,
-//                               true );
-//    if (err_code != NRF_SUCCESS)
-//    {
-//        NRF_LOG_ERROR("drv_AD5245_read Failed!\r\n");
-//    }
 
     err_code = nrf_drv_twi_rx( m_AD5263.init.p_twi_instance,
                                slave_addr,

@@ -103,12 +103,18 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 
         if( ( new_data < (m_data - MARGE_DATA_IN) ) || ( new_data > (m_data + MARGE_DATA_IN) ))
         {
-          NRF_LOG_INFO("PEDAL_DATA %d", new_data);
-          pedal_data_value_update(m_wah_service, new_data);
+          //NRF_LOG_INFO("PEDAL_DATA %d", new_data);
+          uint8_t data_map = map(new_data, 0, 1024, 0, 255);
+          NRF_LOG_INFO("PEDAL_DATA %d", data_map);
+          drv_AD5263_write(AD5263_ADDR,AD5263_CHANNEL_2, &data_map);
+
+          if(m_wah_service->is_pedal_value_notif_enabled)
+          {
+            pedal_data_value_update(m_wah_service, new_data);
+          }
         }
 
         m_data = new_data;
-
     }
 }
 

@@ -84,8 +84,8 @@
 #include "ble_wah.h"
 #include "utils.h"
 #include "saadc.h"
-#include "drv_AD5263.h"
-#include "drv_DS1882.h"
+
+#include "nrf_delay.h"
 
 
 //#define DEBUG
@@ -143,7 +143,7 @@ BLE_ADVERTISING_DEF(m_advertising);                                             
 /* TWI instance. */
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 
-static uint8_t m_preset_selection_value = 0;
+static uint8_t m_preset_selection_value; 
 static uint8_t m_is_on_edit_mode = false;
 
 APP_TIMER_DEF(m_timer_id);
@@ -425,7 +425,7 @@ static void gatt_init(void)
     APP_ERROR_CHECK(err_code);
 
     err_code = nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);         // UPDATE MTU HERE
-    NRF_LOG_INFO("mtu_set_MAX");
+    //NRF_LOG_INFO("mtu_set_MAX");
     APP_ERROR_CHECK(err_code);
 
 }
@@ -511,13 +511,12 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
             if(p_wah_service->is_pedal_value_notif_enabled)
             {
                 //RUN SAADC;
-                saadc_sampling_event_enable();
-
+                //saadc_sampling_event_enable();
 
             }else
             {
                 //STOP SAADC;
-                saadc_sampling_event_disable();
+                //saadc_sampling_event_disable();
             }
             
             break;
@@ -883,35 +882,41 @@ static void bsp_event_handler(bsp_event_t event)
         //PRESET_DOWN PRESS
         case BSP_EVENT_KEY_0:
              NRF_LOG_INFO("PRESET_DOWN PRESS \r\n");
-             if(m_preset_selection_value == 0){
-              break;
-            }else if (!m_is_on_edit_mode){
-              m_preset_selection_value--;
-              NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
-              preset_selection_value_update(&m_wah, m_preset_selection_value);
-              update_led(m_preset_selection_value);
-              update_preset(m_preset_selection_value);
-            }
-            break;
+             if(m_preset_selection_value == 0)
+             {
+                break;
+             }else if (!m_is_on_edit_mode)
+             {
+                m_preset_selection_value--;
+                NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
+                preset_selection_value_update(&m_wah, m_preset_selection_value);
+                update_led(m_preset_selection_value);
+                update_preset(m_preset_selection_value);
+             }
+             break;
 
         //PRESET_FOOTSWITCH PRESS
         case BSP_EVENT_KEY_1:
-        NRF_LOG_INFO("FOOTSWITCH PRESS \r\n");
+            NRF_LOG_INFO("FOOTSWITCH PRESS \r\n");
+            nrf_drv_gpiote_out_toggle(ACTIVATE);
+            bsp_board_led_invert(BYPASS_LED);
             break;
 
         //PRESET_UP PRESS
         case BSP_EVENT_KEY_2:
         NRF_LOG_INFO("PRESET_UP PRESS \r\n");
-        if(m_preset_selection_value == 3){
+        if(m_preset_selection_value == 3)
+        {
               break;
-            }else if (!m_is_on_edit_mode){
-              m_preset_selection_value++;
-              NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
-              preset_selection_value_update(&m_wah, m_preset_selection_value);
-              update_led(m_preset_selection_value);
-              update_preset(m_preset_selection_value);
-            }
-            break;
+        }else if (!m_is_on_edit_mode)
+        {
+          m_preset_selection_value++;
+          NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
+          preset_selection_value_update(&m_wah, m_preset_selection_value);
+          update_led(m_preset_selection_value);
+          update_preset(m_preset_selection_value);
+        }
+        break;
            
         
         case BSP_EVENT_SLEEP:
@@ -998,9 +1003,6 @@ static void buttons_leds_init(bool * p_erase_bonds, bool * p_restore_factory)
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
 
     *p_restore_factory = (startup_event == BSP_EVENT_RESTORE_MEMORY);
-
-    //Init LED on at startup
-    bsp_board_led_on(m_preset_selection_value);
 }
 
 
@@ -1073,6 +1075,74 @@ static void advertising_start(bool erase_bonds)
     }
 }
 
+
+/**@brief Function for setting default config of GPIO
+ */
+static void default_config_GPIO_values(void)
+{
+    nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_A);
+}
+
+
+/**@brief Function for writing setting default to chips
+ */
+static void default_settings(void)
+{
+    uint8_t data = 0;
+
+    //Set LEVEL to max 
+    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data);
+
+    nrf_delay_ms(10);
+
+    //Set MIX to 0 (FULL FILTER)
+    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data);
+}
+
+
+/**@brief Function for init GPIO output/input
+ */
+static void gpio_init(void)
+{
+    ret_code_t err_code;
+    
+    err_code = nrf_drv_gpiote_init();
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
+
+    err_code = nrf_drv_gpiote_out_init(ACTIVATE, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_out_init(GAIN_WAH_CONTROL_A, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_out_init(GAIN_WAH_CONTROL_B, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_out_init(F_SELECT_A, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_out_init(F_SELECT_B, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_out_init(IN_IMPEDANCE, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    default_config_GPIO_values();
+
+    default_settings();
+
+//
+//    nrf_drv_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_LOTOHI(true);
+//    in_config.pull = NRF_GPIO_PIN_PULLUP;
+//
+//    err_code = nrf_drv_gpiote_in_init(INT1_PIN, &in_config, INT1_handler);
+//    APP_ERROR_CHECK(err_code);
+//
+//    nrf_drv_gpiote_in_event_enable(INT1_PIN, true);
+}
+
 static void twi_init(void)
 {
     uint32_t            err_code;
@@ -1106,20 +1176,15 @@ static void twi_init(void)
 
     nrf_delay_ms(100);
 
-     //Write/read I2C
-//     uint8_t data;
-//     uint8_t data_read;
-//     uint8_t instruction_byte = 0x04;
-//
-//     data = 112;
-//
-//     drv_AD5263_write(AD5263_ADDR, instruction_byte, &data);
-//     drv_AD5263_read(AD5263_ADDR, &data_read);
-//
-//     NRF_LOG_INFO("drv_AD5263_read %d", data_read);
-
 }
 
+void preset_init()
+{
+    m_preset_selection_value = 0;
+    preset_selection_value_update(&m_wah, m_preset_selection_value);
+    update_led(m_preset_selection_value);
+    update_preset(m_preset_selection_value);
+}
 
 
 /**@brief Function for application main entry.
@@ -1133,15 +1198,12 @@ int main(void)
 
     // Initialize.
     log_init();
-
     twi_init();
-
+    gpio_init();
     timers_init();
     buttons_leds_init(&erase_bonds, &restore_factory);
     power_management_init();
-
     load_presets_from_flash(restore_factory);
-    
     ble_stack_init();
     gap_params_init();
     gatt_init();
@@ -1149,9 +1211,10 @@ int main(void)
     advertising_init();
     conn_params_init();
     peer_manager_init();
-    
     saadc_init(&m_wah);
     saadc_sampling_event_init();
+    saadc_sampling_event_enable();
+    preset_init();
 
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");

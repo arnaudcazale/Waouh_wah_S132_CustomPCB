@@ -4,19 +4,24 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "nrf_drv_twi.h"
+#include "nrf_log.h"
 
+#define DS1882_ADDR                     0x28
 
-// Device identification register.
-//#define WHO_AM_I                        0x0F
-//#define I_AM_ADG728                     0x33
- 
-// enum
-//{
-//    DRV_ADG728_STATUS_CODE_SUCCESS,            ///< Successful.
-//    DRV_ADG728_STATUS_CODE_INVALID_PARAM,      ///< Invalid parameters.
-//    DRV_ADG728_STATUS_WRONG_DEVICE,            ///< Wrong device at I2C (TWI) address.
-//    DRV_ADG728_STATUS_UNINITALIZED,            ///< The driver is unitialized, please initialize.
-//};
+ enum
+{
+    DRV_DS1882_STATUS_CODE_SUCCESS,            ///< Successful.
+    DRV_DS1882_STATUS_CODE_INVALID_PARAM,      ///< Invalid parameters.
+    DRV_DS1882_STATUS_WRONG_DEVICE,            ///< Wrong device at I2C (TWI) address.
+    DRV_DS1882_STATUS_UNINITALIZED,            ///< The driver is unitialized, please initialize.
+};
+
+enum
+{
+    DS1882_CHANNEL_1,            
+    DS1882_CHANNEL_2,
+    DS1882_CONFIG,
+};
 
 /**@brief TWI communication initialization struct.
  */

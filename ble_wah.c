@@ -6,6 +6,7 @@
 #include "boards.h"
 #include "nrf_log.h"
 
+
 extern volatile preset_config_8_t   preset[PRESET_NUMBER];
 extern volatile calib_config_8_t    calibration;
 static ble_wah_t * m_wah_service;
@@ -1238,16 +1239,35 @@ void update_preset(uint8_t idx_prst)
 {
     debug_preset(idx_prst);
 
-    if(preset[idx_prst].MODE == MANUAL_WAH_MODE)
-    {
+    //Set FC1
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &preset[idx_prst].FC1); 
+    //Set FC2
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &preset[idx_prst].FC2); 
+    //Set Q1
 
-    }
+    //Set Q2
+
+    //Set LV1
+
+    //Set LV2
+
+    //Set IMPEDANCE
+    set_impedance(preset[idx_prst].IMPEDANCE);
+
+    //Set MIX_DRY_WET
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &preset[idx_prst].MIX_DRY_WET); 
+      
+    //Set Filter Type
+    set_filter_type(preset[idx_prst].FILTER_TYPE);
+
+    NRF_LOG_INFO("PRESET UPDATED !!!");    
+
 
 }
 
 void debug_preset (uint8_t idx_prst)
 {
-    #ifdef DEBUG_PRESET
+    #ifdef DEBUG_PRESET_RUNTIME
       NRF_LOG_INFO("************INTO RUNTIME PRESET_STRUCTURE**************");        
       NRF_LOG_INFO("PRESET_              %d", idx_prst);
       NRF_LOG_INFO("FC1 =                %d", preset[idx_prst].FC1);
@@ -1269,4 +1289,39 @@ void debug_preset (uint8_t idx_prst)
       NRF_LOG_INFO("NAME =               %s", preset[idx_prst].NAME); 
       NRF_LOG_INFO("********************************************************");
     #endif
+}
+
+void set_filter_type(uint8_t filter_type)
+{
+    switch(filter_type)
+    {
+      case 0:
+          nrf_drv_gpiote_out_set(F_SELECT_A);
+          nrf_drv_gpiote_out_set(F_SELECT_B);
+        break;
+      
+      case 1:
+          nrf_drv_gpiote_out_clear(F_SELECT_A);
+          nrf_drv_gpiote_out_set(F_SELECT_B);
+        break;
+
+      case 2:
+          nrf_drv_gpiote_out_set(F_SELECT_A);
+          nrf_drv_gpiote_out_clear(F_SELECT_B);
+        break;
+
+      case 3:
+          nrf_drv_gpiote_out_set(F_SELECT_A);
+          nrf_drv_gpiote_out_set(F_SELECT_B);
+        break;
+
+      default:
+        break;
+    }
+
+}
+
+void set_impedance(uint8_t impedance)
+{
+    impedance == LOW_Z ? nrf_drv_gpiote_out_clear(IN_IMPEDANCE) : nrf_drv_gpiote_out_set(IN_IMPEDANCE);
 }

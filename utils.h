@@ -29,7 +29,7 @@
 
 #define PRESET_NUMBER          4
 
-#define DEBUG_PRESET
+//#define DEBUG_PRESET_FLASH
 
 #define INDEX_FC1              0
 #define INDEX_FC2              1
@@ -67,9 +67,9 @@ enum
 };
 
 enum
-{
-    HIGH_Z,           
-    LOW_Z,  
+{         
+    LOW_Z, 
+    HIGH_Z,  
 };
 
 enum
@@ -81,9 +81,9 @@ enum
 };
 
 enum
-{
-    LOW_PASS,           
-    BAND_PASS,  
+{       
+    BAND_PASS, 
+    LOW_PASS,
     HIGH_PASS,
     NOTCH,
 };
@@ -196,6 +196,7 @@ preset_config_32_t * m_fds_read_preset(uint16_t, uint16_t);
 calib_config_32_t *  m_fds_read_calibration(uint16_t, uint16_t);
 void convert_to_byte_format(void);
 void save_preset2flash(uint8_t);
+int map(int, int, int, int, int);
 
 
 

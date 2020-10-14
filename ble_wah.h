@@ -7,6 +7,11 @@
 #include "ble_srv_common.h"
 #include "utils.h"
 
+#include "drv_AD5263.h"
+#include "drv_DS1882.h"
+
+#define DEBUG_PRESET_RUNTIME
+
 #define WAH_SERVICE_UUID_BASE         {0xA9, 0xE9, 0x00, 0x00, 0x19, 0x4C, 0x45, 0x23, \
                                        0xA4, 0x73, 0x5F, 0xDF, 0x36, 0xAA, 0x4D, 0x21}
 #define WAH_SERVICE_UUID               0x1400
@@ -145,6 +150,8 @@ void update_preset(uint8_t);
 static void check_and_save_same_preset_name(uint8_t);
 static void debug_preset(uint8_t);
 static void send_notif(uint8_t);
+
+static void set_filter_type(uint8_t);
 
 
 #endif // BLE_WAH_H__

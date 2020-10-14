@@ -4,9 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "nrf_drv_twi.h"
+#include "nrf_log.h"
 
-
-// Device identification register.
 #define AD5263_ADDR                     0x2C
  
 enum
@@ -15,6 +14,14 @@ enum
     DRV_AD5263_STATUS_CODE_INVALID_PARAM,      ///< Invalid parameters.
     DRV_AD5263_STATUS_WRONG_DEVICE,            ///< Wrong device at I2C (TWI) address.
     DRV_AD5263_STATUS_UNINITALIZED,            ///< The driver is unitialized, please initialize.
+};
+
+enum
+{
+    AD5263_CHANNEL_1,            
+    AD5263_CHANNEL_2,
+    AD5263_CHANNEL_3,
+    AD5263_CHANNEL_4,
 };
 
 /**@brief TWI communication initialization struct.
