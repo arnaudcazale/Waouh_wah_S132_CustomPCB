@@ -9,7 +9,8 @@
 
 extern volatile preset_config_8_t   preset[PRESET_NUMBER];
 extern volatile calib_config_8_t    calibration;
-static ble_wah_t * m_wah_service;
+extern volatile uint8_t             m_preset_selection_value;
+static ble_wah_t *                  m_wah_service;
 
 
 uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
@@ -1139,70 +1140,70 @@ uint32_t preset_4_update(ble_wah_t * p_wah)
     return err_code;
 }
 
-void check_data_received(uint8_t idx_prst, uint8_t * data, uint16_t length)
+void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint16_t length)
 {
-    preset[idx_prst].FC1             = data[INDEX_FC1];
-    preset[idx_prst].FC2             = data[INDEX_FC2];
-    preset[idx_prst].Q1              = data[INDEX_Q1];
-    preset[idx_prst].Q2              = data[INDEX_Q2];
-    preset[idx_prst].LV1             = data[INDEX_LV1];
-    preset[idx_prst].LV2             = data[INDEX_LV2];
-    preset[idx_prst].STATUS          = data[INDEX_STATUS];
-    preset[idx_prst].MODE            = data[INDEX_MODE];
-    preset[idx_prst].TIME_AUTO_WAH   = data[INDEX_TIME_AUTO_WAH] | (uint16_t)data[INDEX_TIME_AUTO_WAH + 1] << 8;
-    preset[idx_prst].TIME_AUTO_LEVEL = data[INDEX_TIME_AUTO_LEVEL] | (uint16_t)data[INDEX_TIME_AUTO_LEVEL + 1] << 8; 
-    preset[idx_prst].IMPEDANCE       = data[INDEX_IMPEDANCE];
-    preset[idx_prst].COLOR           = data[INDEX_COLOR];
-    preset[idx_prst].HIGH_VOYEL      = data[INDEX_HIGH_VOYEL];
-    preset[idx_prst].LOW_VOYEL       = data[INDEX_LOW_VOYEL];
-    preset[idx_prst].MIX_DRY_WET     = data[INDEX_MIX_DRY_WET];
-    preset[idx_prst].FILTER_TYPE     = data[INDEX_FILTER_TYPE];
-    strcpy(preset[idx_prst].NAME,      "");
-    strcpy(preset[idx_prst].NAME,      &data[INDEX_NAME]);
+    preset[m_preset_selection_value].FC1             = data[INDEX_FC1];
+    preset[m_preset_selection_value].FC2             = data[INDEX_FC2];
+    preset[m_preset_selection_value].Q1              = data[INDEX_Q1];
+    preset[m_preset_selection_value].Q2              = data[INDEX_Q2];
+    preset[m_preset_selection_value].LV1             = data[INDEX_LV1];
+    preset[m_preset_selection_value].LV2             = data[INDEX_LV2];
+    preset[m_preset_selection_value].STATUS          = data[INDEX_STATUS];
+    preset[m_preset_selection_value].MODE            = data[INDEX_MODE];
+    preset[m_preset_selection_value].TIME_AUTO_WAH   = data[INDEX_TIME_AUTO_WAH] | (uint16_t)data[INDEX_TIME_AUTO_WAH + 1] << 8;
+    preset[m_preset_selection_value].TIME_AUTO_LEVEL = data[INDEX_TIME_AUTO_LEVEL] | (uint16_t)data[INDEX_TIME_AUTO_LEVEL + 1] << 8; 
+    preset[m_preset_selection_value].IMPEDANCE       = data[INDEX_IMPEDANCE];
+    preset[m_preset_selection_value].COLOR           = data[INDEX_COLOR];
+    preset[m_preset_selection_value].HIGH_VOYEL      = data[INDEX_HIGH_VOYEL];
+    preset[m_preset_selection_value].LOW_VOYEL       = data[INDEX_LOW_VOYEL];
+    preset[m_preset_selection_value].MIX_DRY_WET     = data[INDEX_MIX_DRY_WET];
+    preset[m_preset_selection_value].FILTER_TYPE     = data[INDEX_FILTER_TYPE];
+    strcpy(preset[m_preset_selection_value].NAME,      "");
+    strcpy(preset[m_preset_selection_value].NAME,      &data[INDEX_NAME]);
 
     //Si bit "STATUS" = 1, sauvergarde en flash, sinon, c'est le mode edition (changement on the fly)
-    if(preset[idx_prst].STATUS == PRESET_SAVE_STATUS)
+    if(preset[m_preset_selection_value].STATUS == PRESET_SAVE_STATUS)
     {
-        save_preset2flash(idx_prst);
+        save_preset2flash(m_preset_selection_value);
         //Update Flash contents by sending notification of actual preset
-        send_notif(idx_prst);
+        send_notif(m_preset_selection_value);
 
         //Si un autre preset à le meme nom que celui-ci, il faut le sauver en flash aussi
-        check_and_save_same_preset_name(idx_prst);
+        check_and_save_same_preset_name(m_preset_selection_value);
 
     ///Si bit "MODE" = 0, Command SPI & I2C chips in real time  
-    }else if (preset[idx_prst].STATUS == PRESET_EDIT_STATUS)
+    }else if (preset[m_preset_selection_value].STATUS == PRESET_EDIT_STATUS)
     {
-        update_preset(idx_prst);
+        //update_preset(m_preset_selection_value);
     }
 }
 
-void check_and_save_same_preset_name(uint8_t idx_prst)
+void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
 {
     for(uint8_t i=0; i<PRESET_NUMBER; i++)
     {
-        if(i != idx_prst)
+        if(i != m_preset_selection_value)
         {
-            if(!strcmp(preset[idx_prst].NAME, preset[i].NAME))
+            if(!strcmp(preset[m_preset_selection_value].NAME, preset[i].NAME))
             {
-              NRF_LOG_INFO("PRESET_%d.NAME == PRESET_%d.NAME  (%s) ",  idx_prst, i, preset[idx_prst].NAME);
+              NRF_LOG_INFO("PRESET_%d.NAME == PRESET_%d.NAME  (%s) ",  m_preset_selection_value, i, preset[m_preset_selection_value].NAME);
 
-              preset[i].FC1             = preset[idx_prst].FC1;
-              preset[i].FC2             = preset[idx_prst].FC2;
-              preset[i].Q1              = preset[idx_prst].Q1;
-              preset[i].Q2              = preset[idx_prst].Q2;
-              preset[i].LV1             = preset[idx_prst].LV1;
-              preset[i].LV2             = preset[idx_prst].LV2;
-              preset[i].STATUS          = preset[idx_prst].STATUS;
-              preset[i].MODE            = preset[idx_prst].MODE;
-              preset[i].TIME_AUTO_WAH   = preset[idx_prst].TIME_AUTO_WAH;
-              preset[i].TIME_AUTO_LEVEL = preset[idx_prst].TIME_AUTO_LEVEL;
-              preset[i].IMPEDANCE       = preset[idx_prst].IMPEDANCE;
-              preset[i].COLOR           = preset[idx_prst].COLOR;
-              preset[i].HIGH_VOYEL      = preset[idx_prst].HIGH_VOYEL;
-              preset[i].LOW_VOYEL       = preset[idx_prst].LOW_VOYEL;
-              preset[i].MIX_DRY_WET     = preset[idx_prst].MIX_DRY_WET;
-              preset[i].FILTER_TYPE     = preset[idx_prst].FILTER_TYPE;
+              preset[i].FC1             = preset[m_preset_selection_value].FC1;
+              preset[i].FC2             = preset[m_preset_selection_value].FC2;
+              preset[i].Q1              = preset[m_preset_selection_value].Q1;
+              preset[i].Q2              = preset[m_preset_selection_value].Q2;
+              preset[i].LV1             = preset[m_preset_selection_value].LV1;
+              preset[i].LV2             = preset[m_preset_selection_value].LV2;
+              preset[i].STATUS          = preset[m_preset_selection_value].STATUS;
+              preset[i].MODE            = preset[m_preset_selection_value].MODE;
+              preset[i].TIME_AUTO_WAH   = preset[m_preset_selection_value].TIME_AUTO_WAH;
+              preset[i].TIME_AUTO_LEVEL = preset[m_preset_selection_value].TIME_AUTO_LEVEL;
+              preset[i].IMPEDANCE       = preset[m_preset_selection_value].IMPEDANCE;
+              preset[i].COLOR           = preset[m_preset_selection_value].COLOR;
+              preset[i].HIGH_VOYEL      = preset[m_preset_selection_value].HIGH_VOYEL;
+              preset[i].LOW_VOYEL       = preset[m_preset_selection_value].LOW_VOYEL;
+              preset[i].MIX_DRY_WET     = preset[m_preset_selection_value].MIX_DRY_WET;
+              preset[i].FILTER_TYPE     = preset[m_preset_selection_value].FILTER_TYPE;
   
               save_preset2flash(i);
               //Update Flash contents by sending notification of actual preset
@@ -1213,9 +1214,9 @@ void check_and_save_same_preset_name(uint8_t idx_prst)
     }
 }
 
-void send_notif(uint8_t idx_prst)
+void send_notif(uint8_t m_preset_selection_value)
 {
-    switch(idx_prst)
+    switch(m_preset_selection_value)
     {
       case 0:
           preset_1_update(m_wah_service);
@@ -1235,58 +1236,67 @@ void send_notif(uint8_t idx_prst)
     }
 }
 
-void update_preset(uint8_t idx_prst)
+void config_preset()
 {
-    debug_preset(idx_prst);
-
-    //Set FC1
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &preset[idx_prst].FC1); 
-    //Set FC2
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &preset[idx_prst].FC2); 
-    //Set Q1
-
-    //Set Q2
-
-    //Set LV1
-
-    //Set LV2
-
-    //Set IMPEDANCE
-    set_impedance(preset[idx_prst].IMPEDANCE);
-
     //Set MIX_DRY_WET
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &preset[idx_prst].MIX_DRY_WET); 
-      
-    //Set Filter Type
-    set_filter_type(preset[idx_prst].FILTER_TYPE);
+    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &preset[m_preset_selection_value].MIX_DRY_WET);
 
-    NRF_LOG_INFO("PRESET UPDATED !!!");    
+    //Set GAIN
+    uint8_t data_G = 128;
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_4, &data_G);
 
+    //Set Filter type
+    set_filter_type(preset[m_preset_selection_value].FILTER_TYPE);
 
+    //Set impedance
+    set_impedance(preset[m_preset_selection_value].IMPEDANCE);
+
+    NRF_LOG_INFO("PRESET CONFIGURED !!!");    
 }
 
-void debug_preset (uint8_t idx_prst)
+
+void update_preset(int data)
+{
+    //debug_preset(m_preset_selection_value);
+
+    //Set F
+    uint8_t data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
+
+    //Set Q
+    uint8_t data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+
+    //Set LV
+    uint8_t data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+
+    NRF_LOG_INFO("PRESET UPDATED !!!");    
+}
+
+void debug_preset (uint8_t m_preset_selection_value)
 {
     #ifdef DEBUG_PRESET_RUNTIME
       NRF_LOG_INFO("************INTO RUNTIME PRESET_STRUCTURE**************");        
-      NRF_LOG_INFO("PRESET_              %d", idx_prst);
-      NRF_LOG_INFO("FC1 =                %d", preset[idx_prst].FC1);
-      NRF_LOG_INFO("FC2 =                %d", preset[idx_prst].FC2);
-      NRF_LOG_INFO("Q1 =                 %d", preset[idx_prst].Q1);
-      NRF_LOG_INFO("Q2 =                 %d", preset[idx_prst].Q2); 
-      NRF_LOG_INFO("LV1 =                %d", preset[idx_prst].LV1);
-      NRF_LOG_INFO("LV2 =                %d", preset[idx_prst].LV2);
-      NRF_LOG_INFO("STATUS =             %d", preset[idx_prst].STATUS);
-      NRF_LOG_INFO("MODE =               %d", preset[idx_prst].MODE); 
-      NRF_LOG_INFO("TIME_AUTO_WAH =      %d", preset[idx_prst].TIME_AUTO_WAH); 
-      NRF_LOG_INFO("TIME_AUTO_LEVEL =    %d", preset[idx_prst].TIME_AUTO_LEVEL);
-      NRF_LOG_INFO("IMPEDANCE =          %d", preset[idx_prst].IMPEDANCE); 
-      NRF_LOG_INFO("COLOR =              %d", preset[idx_prst].COLOR); 
-      NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[idx_prst].HIGH_VOYEL); 
-      NRF_LOG_INFO("LOW_VOYEL =          %d", preset[idx_prst].LOW_VOYEL);
-      NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[idx_prst].MIX_DRY_WET); 
-      NRF_LOG_INFO("FILTER_TYPE =        %d", preset[idx_prst].FILTER_TYPE); 
-      NRF_LOG_INFO("NAME =               %s", preset[idx_prst].NAME); 
+      NRF_LOG_INFO("PRESET_              %d", m_preset_selection_value);
+      NRF_LOG_INFO("FC1 =                %d", preset[m_preset_selection_value].FC1);
+      NRF_LOG_INFO("FC2 =                %d", preset[m_preset_selection_value].FC2);
+      NRF_LOG_INFO("Q1 =                 %d", preset[m_preset_selection_value].Q1);
+      NRF_LOG_INFO("Q2 =                 %d", preset[m_preset_selection_value].Q2); 
+      NRF_LOG_INFO("LV1 =                %d", preset[m_preset_selection_value].LV1);
+      NRF_LOG_INFO("LV2 =                %d", preset[m_preset_selection_value].LV2);
+      NRF_LOG_INFO("STATUS =             %d", preset[m_preset_selection_value].STATUS);
+      NRF_LOG_INFO("MODE =               %d", preset[m_preset_selection_value].MODE); 
+      NRF_LOG_INFO("TIME_AUTO_WAH =      %d", preset[m_preset_selection_value].TIME_AUTO_WAH); 
+      NRF_LOG_INFO("TIME_AUTO_LEVEL =    %d", preset[m_preset_selection_value].TIME_AUTO_LEVEL);
+      NRF_LOG_INFO("IMPEDANCE =          %d", preset[m_preset_selection_value].IMPEDANCE); 
+      NRF_LOG_INFO("COLOR =              %d", preset[m_preset_selection_value].COLOR); 
+      NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[m_preset_selection_value].HIGH_VOYEL); 
+      NRF_LOG_INFO("LOW_VOYEL =          %d", preset[m_preset_selection_value].LOW_VOYEL);
+      NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[m_preset_selection_value].MIX_DRY_WET); 
+      NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE); 
+      NRF_LOG_INFO("NAME =               %s", preset[m_preset_selection_value].NAME); 
       NRF_LOG_INFO("********************************************************");
     #endif
 }

@@ -10,6 +10,8 @@
 
 #include "ble_wah.h"
 
+#define SAADC_RES 1024;
+
 enum
 {
     M_SAADC_STATUS_CODE_SUCCESS,                     ///< Successfull

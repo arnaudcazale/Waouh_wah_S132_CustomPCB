@@ -196,7 +196,7 @@ preset_config_32_t * m_fds_read_preset(uint16_t, uint16_t);
 calib_config_32_t *  m_fds_read_calibration(uint16_t, uint16_t);
 void convert_to_byte_format(void);
 void save_preset2flash(uint8_t);
-int map(int, int, int, int, int);
+long map(long, long, long, long, long);
 
 
 

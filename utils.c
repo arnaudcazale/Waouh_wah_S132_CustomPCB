@@ -57,6 +57,8 @@ void load_presets_from_flash(bool restore_factory)
 
     NRF_LOG_INFO("Loading_Presets...");
     load_flash_config();
+
+    
     
 }
 
@@ -161,12 +163,12 @@ ret_code_t write_factory_presets()
     uint32_t err_code;
     uint8_t idx_prst; 
 
-    preset_32[0].FC1             = 127;
-    preset_32[0].FC2             = 127;
-    preset_32[0].Q1              = 127;
-    preset_32[0].Q2              = 127;
-    preset_32[0].LV1             = 127;
-    preset_32[0].LV2             = 127;
+    preset_32[0].FC1             = 255;
+    preset_32[0].FC2             = 0;
+    preset_32[0].Q1              = 128;
+    preset_32[0].Q2              = 128;
+    preset_32[0].LV1             = 0;
+    preset_32[0].LV2             = 0;
     preset_32[0].STATUS          = PRESET_EDIT_STATUS;
     preset_32[0].MODE            = MANUAL_WAH_MODE;
     preset_32[0].TIME_AUTO_WAH   = 127;
@@ -183,12 +185,12 @@ ret_code_t write_factory_presets()
     write_preset_config(0);
     //while(!flash_writing);
 
-    preset_32[1].FC1             = 127;
-    preset_32[1].FC2             = 127;
-    preset_32[1].Q1              = 127;
-    preset_32[1].Q2              = 127;
-    preset_32[1].LV1             = 127;
-    preset_32[1].LV2             = 127;
+    preset_32[1].FC1             = 50;
+    preset_32[1].FC2             = 200;
+    preset_32[1].Q1              = 50;
+    preset_32[1].Q2              = 200;
+    preset_32[1].LV1             = 10;
+    preset_32[1].LV2             = 50;
     preset_32[1].STATUS          = PRESET_EDIT_STATUS;
     preset_32[1].MODE            = MANUAL_WAH_MODE;
     preset_32[1].TIME_AUTO_WAH   = 666;
@@ -205,12 +207,12 @@ ret_code_t write_factory_presets()
     write_preset_config(1);
     //while(flash_writing);
 
-    preset_32[2].FC1             = 127;
-    preset_32[2].FC2             = 127;
-    preset_32[2].Q1              = 127;
-    preset_32[2].Q2              = 127;
-    preset_32[2].LV1             = 127;
-    preset_32[2].LV2             = 127;
+    preset_32[2].FC1             = 50;
+    preset_32[2].FC2             = 150;
+    preset_32[2].Q1              = 5;
+    preset_32[2].Q2              = 150;
+    preset_32[2].LV1             = 20;
+    preset_32[2].LV2             = 40;
     preset_32[2].STATUS          = PRESET_EDIT_STATUS;
     preset_32[2].MODE            = MANUAL_WAH_MODE;
     preset_32[2].TIME_AUTO_WAH   = 1000;
@@ -227,12 +229,12 @@ ret_code_t write_factory_presets()
     write_preset_config(2);
     //while(flash_writing);
 
-    preset_32[3].FC1             = 127;
-    preset_32[3].FC2             = 127;
-    preset_32[3].Q1              = 127;
-    preset_32[3].Q2              = 127;
-    preset_32[3].LV1             = 127;
-    preset_32[3].LV2             = 127;
+    preset_32[3].FC1             = 75;
+    preset_32[3].FC2             = 125;
+    preset_32[3].Q1              = 75;
+    preset_32[3].Q2              = 125;
+    preset_32[3].LV1             = 30;
+    preset_32[3].LV2             = 40;
     preset_32[3].STATUS          = PRESET_EDIT_STATUS;
     preset_32[3].MODE            = MANUAL_WAH_MODE;
     preset_32[3].TIME_AUTO_WAH   = 999;
@@ -576,7 +578,7 @@ void save_preset2flash(uint8_t idx_prst)
     //while(!flash_writing);
 }
 
-int map(int data, int in_min, int in_max, int out_min, int out_max)
+long map(long data, long in_min, long in_max, long out_min, long out_max)
 {
     return (data - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }

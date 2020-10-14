@@ -143,7 +143,7 @@ BLE_ADVERTISING_DEF(m_advertising);                                             
 /* TWI instance. */
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 
-static uint8_t m_preset_selection_value; 
+uint8_t m_preset_selection_value; 
 static uint8_t m_is_on_edit_mode = false;
 
 APP_TIMER_DEF(m_timer_id);
@@ -891,7 +891,7 @@ static void bsp_event_handler(bsp_event_t event)
                 NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
                 preset_selection_value_update(&m_wah, m_preset_selection_value);
                 update_led(m_preset_selection_value);
-                update_preset(m_preset_selection_value);
+                config_preset();
              }
              break;
 
@@ -914,7 +914,7 @@ static void bsp_event_handler(bsp_event_t event)
           NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
           preset_selection_value_update(&m_wah, m_preset_selection_value);
           update_led(m_preset_selection_value);
-          update_preset(m_preset_selection_value);
+          config_preset();
         }
         break;
            
@@ -1078,26 +1078,26 @@ static void advertising_start(bool erase_bonds)
 
 /**@brief Function for setting default config of GPIO
  */
-static void default_config_GPIO_values(void)
-{
-    nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_A);
-}
+//static void default_config_GPIO_values(void)
+//{
+//    nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_A);
+//}
 
 
 /**@brief Function for writing setting default to chips
  */
-static void default_settings(void)
-{
-    uint8_t data = 0;
-
-    //Set LEVEL to max 
-    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data);
-
-    nrf_delay_ms(10);
-
-    //Set MIX to 0 (FULL FILTER)
-    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data);
-}
+//static void default_settings(void)
+//{
+//    uint8_t data = 0;
+//
+//    //Set LEVEL to max 
+//    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data);
+//
+//    nrf_delay_ms(10);
+//
+//    //Set MIX to 0 (FULL FILTER)
+//    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data);
+//}
 
 
 /**@brief Function for init GPIO output/input
@@ -1129,9 +1129,9 @@ static void gpio_init(void)
     err_code = nrf_drv_gpiote_out_init(IN_IMPEDANCE, &out_config);
     APP_ERROR_CHECK(err_code);
 
-    default_config_GPIO_values();
+    //default_config_GPIO_values();
 
-    default_settings();
+    ///default_settings();
 
 //
 //    nrf_drv_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_LOTOHI(true);
@@ -1153,7 +1153,7 @@ static void twi_init(void)
     {
         .scl = TWI_SCL,
         .sda = TWI_SDA,
-        .frequency          = NRF_TWI_FREQ_400K,
+        .frequency          = NRF_TWI_FREQ_100K,
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,  //APP_IRQ_PRIORITY_LOW 
     };
   
@@ -1183,7 +1183,7 @@ void preset_init()
     m_preset_selection_value = 0;
     preset_selection_value_update(&m_wah, m_preset_selection_value);
     update_led(m_preset_selection_value);
-    update_preset(m_preset_selection_value);
+    config_preset();
 }
 
 

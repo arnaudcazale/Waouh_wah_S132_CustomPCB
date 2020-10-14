@@ -27,13 +27,14 @@ uint32_t drv_DS1882_init(drv_DS1882_init_t * p_params)
 int drv_DS1882_write(unsigned char slave_addr, unsigned char channel_select, unsigned char const * p_data)
 {
     uint32_t err_code;
-    uint8_t buffer[1];
-    buffer[0] = (channel_select << 6 ) | *p_data;
+    uint8_t buffer[2] = {0x86 , (channel_select << 6 ) | *p_data};
+
+    //memcpy(&buffer[0], &instruction_byte, 1);
     
     err_code = nrf_drv_twi_tx( m_DS1882.init.p_twi_instance,
                                slave_addr,
                                buffer,
-                               1,
+                               2,
                                false);
     if (err_code != NRF_SUCCESS)
     {

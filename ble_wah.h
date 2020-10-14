@@ -10,6 +10,7 @@
 #include "drv_AD5263.h"
 #include "drv_DS1882.h"
 
+
 #define DEBUG_PRESET_RUNTIME
 
 #define WAH_SERVICE_UUID_BASE         {0xA9, 0xE9, 0x00, 0x00, 0x19, 0x4C, 0x45, 0x23, \
@@ -24,6 +25,8 @@
 #define CALIBRATION_CHAR_UUID          0x1407
 
 #define NRF_BLE_MAX_MTU_SIZE 247
+
+#define SAADC_RES 1024
 
 #ifdef __GNUC__
     #ifdef PACKED
@@ -146,7 +149,8 @@ uint32_t preset_2_update(ble_wah_t *);
 uint32_t preset_3_update(ble_wah_t *);
 uint32_t preset_4_update(ble_wah_t *);
 void check_data_received(uint8_t, uint8_t *, uint16_t);
-void update_preset(uint8_t);
+void update_preset(int);
+void config_preset();
 static void check_and_save_same_preset_name(uint8_t);
 static void debug_preset(uint8_t);
 static void send_notif(uint8_t);

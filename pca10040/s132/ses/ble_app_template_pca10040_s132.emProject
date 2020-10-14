@@ -109,6 +109,7 @@
       <file file_name="../../../drv_AD5263.h" />
       <file file_name="../../../drv_DS1882.c" />
       <file file_name="../../../drv_DS1882.h" />
+      <file file_name="../../../custom_board.h" />
     </folder>
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT.c" />
