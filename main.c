@@ -86,6 +86,7 @@
 #include "saadc.h"
 
 #include "nrf_delay.h"
+//#include "app_scheduler.h"
 
 
 //#define DEBUG
@@ -142,12 +143,17 @@ BLE_ADVERTISING_DEF(m_advertising);                                             
 #define TWI_INSTANCE_ID     0
 /* TWI instance. */
 static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
+//#define BLE_STACK_HANDLER_SCHED_EVT_SIZE 0  
+//#define SCHED_MAX_EVENT_DATA_SIZE   MAX(APP_TIMER_SCHED_EVENT_DATA_SIZE, BLE_STACK_HANDLER_SCHED_EVT_SIZE) /**< Maximum size of scheduler events. */
+//#define SCHED_QUEUE_SIZE            60  /**< Maximum number of events in the scheduler queue. */
 
 uint8_t m_preset_selection_value; 
 static uint8_t m_is_on_edit_mode = false;
 
 APP_TIMER_DEF(m_timer_id);
 APP_TIMER_DEF(m_sec_req_timer_id);                                                  /**< Security Request timer. */
+
+#define APP_TIMER_SCHED_EVENT_DATA_SIZE sizeof(app_timer_event_t)
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -881,14 +887,14 @@ static void bsp_event_handler(bsp_event_t event)
     {
         //PRESET_DOWN PRESS
         case BSP_EVENT_KEY_0:
-             NRF_LOG_INFO("PRESET_DOWN PRESS \r\n");
+             //NRF_LOG_INFO("PRESET_DOWN PRESS");
              if(m_preset_selection_value == 0)
              {
                 break;
              }else if (!m_is_on_edit_mode)
              {
                 m_preset_selection_value--;
-                NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
+                //NRF_LOG_INFO("SELECTION_PRESET : %d", m_preset_selection_value);
                 preset_selection_value_update(&m_wah, m_preset_selection_value);
                 update_led(m_preset_selection_value);
                 config_preset();
@@ -897,21 +903,21 @@ static void bsp_event_handler(bsp_event_t event)
 
         //PRESET_FOOTSWITCH PRESS
         case BSP_EVENT_KEY_1:
-            NRF_LOG_INFO("FOOTSWITCH PRESS \r\n");
+            //NRF_LOG_INFO("FOOTSWITCH PRESS");
             nrf_drv_gpiote_out_toggle(ACTIVATE);
             bsp_board_led_invert(BYPASS_LED);
             break;
 
         //PRESET_UP PRESS
         case BSP_EVENT_KEY_2:
-        NRF_LOG_INFO("PRESET_UP PRESS \r\n");
+        //NRF_LOG_INFO("PRESET_UP PRESS");
         if(m_preset_selection_value == 3)
         {
               break;
         }else if (!m_is_on_edit_mode)
         {
           m_preset_selection_value++;
-          NRF_LOG_INFO("SELECTION_PRESET : %d \r\n", m_preset_selection_value);
+          //NRF_LOG_INFO("SELECTION_PRESET : %d", m_preset_selection_value);
           preset_selection_value_update(&m_wah, m_preset_selection_value);
           update_led(m_preset_selection_value);
           config_preset();
@@ -1211,10 +1217,9 @@ int main(void)
     advertising_init();
     conn_params_init();
     peer_manager_init();
-    saadc_init(&m_wah);
-    saadc_sampling_event_init();
-    saadc_sampling_event_enable();
     preset_init();
+
+    //APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
 
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
@@ -1223,6 +1228,7 @@ int main(void)
     // Enter main loop.
     for (;;)
     {
+        //app_sched_execute();
         idle_state_handle();
     }
 }

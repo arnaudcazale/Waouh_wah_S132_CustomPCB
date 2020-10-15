@@ -28,6 +28,9 @@
 
 #define SAADC_RES 1024
 
+#define SAMPLING_20MS    20
+
+
 #ifdef __GNUC__
     #ifdef PACKED
         #undef PACKED
@@ -150,12 +153,19 @@ uint32_t preset_3_update(ble_wah_t *);
 uint32_t preset_4_update(ble_wah_t *);
 void check_data_received(uint8_t, uint8_t *, uint16_t);
 void update_preset(int);
+uint32_t check_mode(uint8_t);
 void config_preset();
+void reset_config_preset();
 static void check_and_save_same_preset_name(uint8_t);
 static void debug_preset(uint8_t);
 static void send_notif(uint8_t);
-
 static void set_filter_type(uint8_t);
+static void timer_start_auto_wah(uint16_t );
+static void timer_start_auto_level(uint16_t );
+static void app_timer_periodic_handler_auto_wah(void * p_context);
+static void app_timer_periodic_handler_auto_level(void * p_context);
+
+
 
 
 #endif // BLE_WAH_H__

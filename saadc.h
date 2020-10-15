@@ -10,8 +10,6 @@
 
 #include "ble_wah.h"
 
-#define SAADC_RES 1024;
-
 enum
 {
     M_SAADC_STATUS_CODE_SUCCESS,                     ///< Successfull
@@ -26,11 +24,13 @@ enum
 #define ADC_RESOLUTION_BITS         (8 + (SAADC_CONFIG_RESOLUTION * 2)) //ADC resolution [bits].
 
 void saadc_init_one_shot();
-void saadc_init(ble_wah_t *);
+void saadc_init();
+void saadc_uninit();
 void saadc_sampling_event_init(void);
 void saadc_callback(nrf_drv_saadc_evt_t const *);
 void timer_handler(nrf_timer_event_t event_type, void *);
 void saadc_sampling_event_enable(void);
+void saadc_start(ble_wah_t*, uint8_t);
 
 
 

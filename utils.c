@@ -163,16 +163,16 @@ ret_code_t write_factory_presets()
     uint32_t err_code;
     uint8_t idx_prst; 
 
-    preset_32[0].FC1             = 255;
-    preset_32[0].FC2             = 0;
+    preset_32[0].FC1             = 150;
+    preset_32[0].FC2             = 200;
     preset_32[0].Q1              = 128;
     preset_32[0].Q2              = 128;
     preset_32[0].LV1             = 0;
     preset_32[0].LV2             = 0;
     preset_32[0].STATUS          = PRESET_EDIT_STATUS;
-    preset_32[0].MODE            = MANUAL_WAH_MODE;
-    preset_32[0].TIME_AUTO_WAH   = 127;
-    preset_32[0].TIME_AUTO_LEVEL = 126;
+    preset_32[0].MODE            = AUTO_WAH_MODE;
+    preset_32[0].TIME_AUTO_WAH   = 500;
+    preset_32[0].TIME_AUTO_LEVEL = 500;
     preset_32[0].IMPEDANCE       = LOW_Z;
     preset_32[0].COLOR           = COLOR_1;
     preset_32[0].HIGH_VOYEL      = ae;
@@ -185,17 +185,17 @@ ret_code_t write_factory_presets()
     write_preset_config(0);
     //while(!flash_writing);
 
-    preset_32[1].FC1             = 50;
-    preset_32[1].FC2             = 200;
-    preset_32[1].Q1              = 50;
-    preset_32[1].Q2              = 200;
-    preset_32[1].LV1             = 10;
-    preset_32[1].LV2             = 50;
+    preset_32[1].FC1             = 128;
+    preset_32[1].FC2             = 128;
+    preset_32[1].Q1              = 128;
+    preset_32[1].Q2              = 128;
+    preset_32[1].LV1             = 0;
+    preset_32[1].LV2             = 63;
     preset_32[1].STATUS          = PRESET_EDIT_STATUS;
-    preset_32[1].MODE            = MANUAL_WAH_MODE;
+    preset_32[1].MODE            = AUTO_LEVEL_MODE;
     preset_32[1].TIME_AUTO_WAH   = 666;
-    preset_32[1].TIME_AUTO_LEVEL = 222;
-    preset_32[1].IMPEDANCE       = HIGH_Z;
+    preset_32[1].TIME_AUTO_LEVEL = 500;
+    preset_32[1].IMPEDANCE       = LOW_Z;
     preset_32[1].COLOR           = COLOR_2;
     preset_32[1].HIGH_VOYEL      = ae;
     preset_32[1].LOW_VOYEL       = uh;

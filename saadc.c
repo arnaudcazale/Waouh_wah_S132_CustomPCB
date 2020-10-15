@@ -6,7 +6,9 @@ static nrf_ppi_channel_t     m_ppi_channel;
 static uint32_t              m_adc_evt_counter;
 static const nrf_drv_timer_t m_timer = NRF_DRV_TIMER_INSTANCE(1);
 static ble_wah_t * m_wah_service;
+static uint8_t m_sampling_time;
 static uint16_t m_data = 0;
+static uint8_t saadc_is_initialized = false;
 
 /**
  * @brief Function for confguring SAADC channel 0 for sampling AIN0 (P0.02).
@@ -24,11 +26,9 @@ void saadc_init_one_shot(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void saadc_init(ble_wah_t * wah_service)
+void saadc_init()
 {
     ret_code_t err_code;
-
-    m_wah_service = wah_service; 
 
     nrf_saadc_channel_config_t channel_config =
     NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN1);
@@ -44,6 +44,23 @@ void saadc_init(ble_wah_t * wah_service)
 
     err_code = nrf_drv_saadc_buffer_convert(m_buffer_pool[1], SAMPLES_IN_BUFFER);
     APP_ERROR_CHECK(err_code);
+
+    saadc_is_initialized = true;
+}
+
+void saadc_uninit()
+{
+    if(saadc_is_initialized)
+    {
+      nrf_drv_timer_disable(&m_timer);
+      nrf_drv_timer_uninit(&m_timer);
+      nrf_drv_ppi_channel_disable(m_ppi_channel);
+      nrf_drv_ppi_uninit();
+      nrf_drv_saadc_abort();
+      nrf_drv_saadc_uninit();
+      //while(nrf_drv_saadc_is_busy());
+      saadc_is_initialized = false;
+    }
 }
 
 void saadc_sampling_event_init(void)
@@ -59,7 +76,7 @@ void saadc_sampling_event_init(void)
     APP_ERROR_CHECK(err_code);
 
     /* setup m_timer for compare event every 400ms */
-    uint32_t ticks = nrf_drv_timer_ms_to_ticks(&m_timer, 20);
+    uint32_t ticks = nrf_drv_timer_ms_to_ticks(&m_timer, m_sampling_time);
     nrf_drv_timer_extended_compare(&m_timer,
                                    NRF_TIMER_CC_CHANNEL0,
                                    ticks,
@@ -135,3 +152,11 @@ void saadc_sampling_event_disable(void)
     APP_ERROR_CHECK(err_code);
 }
 
+void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time)
+{
+    m_wah_service =   wah_service; 
+    m_sampling_time = sampling_time;
+    saadc_init();
+    saadc_sampling_event_init();
+    saadc_sampling_event_enable();
+}

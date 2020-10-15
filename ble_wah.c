@@ -5,13 +5,20 @@
 #include "nrf_gpio.h"
 #include "boards.h"
 #include "nrf_log.h"
+#include "app_timer.h"
 
 
-extern volatile preset_config_8_t   preset[PRESET_NUMBER];
-extern volatile calib_config_8_t    calibration;
-extern volatile uint8_t             m_preset_selection_value;
-static ble_wah_t *                  m_wah_service;
+extern volatile preset_config_8_t      preset[PRESET_NUMBER];
+extern volatile calib_config_8_t       calibration;
+extern volatile uint8_t                m_preset_selection_value;
+static ble_wah_t *                     m_wah_service;
+static bool                            timer_auto_wah_is_running;
+static bool                            timer_auto_level_is_running;
+static uint8_t                         cpt_timer;
+static uint8_t                         auto_data_up;
 
+APP_TIMER_DEF(m_timer_auto_wah);
+APP_TIMER_DEF(m_timer_auto_level);
 
 uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
 {
@@ -98,6 +105,12 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
     {
         return err_code;
     }
+
+    err_code = app_timer_create(&m_timer_auto_wah, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_wah);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_timer_auto_level, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_level);
+    APP_ERROR_CHECK(err_code);
 
 }
 
@@ -1140,6 +1153,10 @@ uint32_t preset_4_update(ble_wah_t * p_wah)
     return err_code;
 }
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint16_t length)
 {
     preset[m_preset_selection_value].FC1             = data[INDEX_FC1];
@@ -1168,7 +1185,7 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
         //Update Flash contents by sending notification of actual preset
         send_notif(m_preset_selection_value);
 
-        //Si un autre preset à le meme nom que celui-ci, il faut le sauver en flash aussi
+        //Si un autre preset à le meme nom que celui-ci, il faut aussi le sauver en flash
         check_and_save_same_preset_name(m_preset_selection_value);
 
     ///Si bit "MODE" = 0, Command SPI & I2C chips in real time  
@@ -1178,6 +1195,10 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
     }
 }
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
 {
     for(uint8_t i=0; i<PRESET_NUMBER; i++)
@@ -1214,6 +1235,10 @@ void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
     }
 }
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void send_notif(uint8_t m_preset_selection_value)
 {
     switch(m_preset_selection_value)
@@ -1236,8 +1261,40 @@ void send_notif(uint8_t m_preset_selection_value)
     }
 }
 
+void reset_config_preset()
+{
+    uint32_t err_code;
+
+    //Uninit saadc 
+    saadc_uninit();
+
+    //Stop Timers
+    if(timer_auto_wah_is_running)
+    {
+        err_code = app_timer_stop(m_timer_auto_wah);
+        APP_ERROR_CHECK(err_code);
+        timer_auto_wah_is_running = false;
+    }
+
+    if(timer_auto_level_is_running)
+    {
+        err_code = app_timer_stop(m_timer_auto_level);
+        APP_ERROR_CHECK(err_code);
+        timer_auto_level_is_running = false;
+    }
+    
+}
+
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void config_preset()
 {
+    uint32_t err_code;
+
+    reset_config_preset();
+
     //Set MIX_DRY_WET
     drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &preset[m_preset_selection_value].MIX_DRY_WET);
 
@@ -1251,56 +1308,123 @@ void config_preset()
     //Set impedance
     set_impedance(preset[m_preset_selection_value].IMPEDANCE);
 
-    NRF_LOG_INFO("PRESET CONFIGURED !!!");    
+    //Check mode
+    err_code = check_mode(preset[m_preset_selection_value].MODE);
+    APP_ERROR_CHECK(err_code);
+
+    NRF_LOG_INFO("PRESET CONFIGURED");    
+
+    debug_preset(m_preset_selection_value);
 }
 
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void update_preset(int data)
 {
-    //debug_preset(m_preset_selection_value);
+    uint8_t data_F, data_Q, data_L;
+   
+    switch(preset[m_preset_selection_value].MODE)
+    {
+        case MANUAL_WAH_MODE:
+            //Set F
+            data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
 
-    //Set F
-    uint8_t data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
+            //Set Q
+            data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
 
-    //Set Q
-    uint8_t data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            //Set LV
+            data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+          break;
+        case MANUAL_LEVEL_MODE:
+            
+          break;
+        case AUTO_WAH_MODE:
+            //Set F
+            data_F = map(data, 0, 255, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
 
-    //Set LV
-    uint8_t data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            //Set Q
+//            data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+//            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
 
-    NRF_LOG_INFO("PRESET UPDATED !!!");    
+            //Set LV
+//            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+//            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+          break;
+        case AUTO_LEVEL_MODE:
+             //Set LV
+            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+          break;
+        case TALKBOX:
+
+          break;
+
+        default:
+          break;
+    }
+  
+    //NRF_LOG_INFO("PRESET UPDATED");    
 }
 
 void debug_preset (uint8_t m_preset_selection_value)
 {
     #ifdef DEBUG_PRESET_RUNTIME
-      NRF_LOG_INFO("************INTO RUNTIME PRESET_STRUCTURE**************");        
+      NRF_LOG_INFO("************ACTIVE PRESET_STRUCTURE**************");
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("PRESET_              %d", m_preset_selection_value);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("FC1 =                %d", preset[m_preset_selection_value].FC1);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("FC2 =                %d", preset[m_preset_selection_value].FC2);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("Q1 =                 %d", preset[m_preset_selection_value].Q1);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("Q2 =                 %d", preset[m_preset_selection_value].Q2); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("LV1 =                %d", preset[m_preset_selection_value].LV1);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("LV2 =                %d", preset[m_preset_selection_value].LV2);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("STATUS =             %d", preset[m_preset_selection_value].STATUS);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("MODE =               %d", preset[m_preset_selection_value].MODE); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("TIME_AUTO_WAH =      %d", preset[m_preset_selection_value].TIME_AUTO_WAH); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("TIME_AUTO_LEVEL =    %d", preset[m_preset_selection_value].TIME_AUTO_LEVEL);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("IMPEDANCE =          %d", preset[m_preset_selection_value].IMPEDANCE); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("COLOR =              %d", preset[m_preset_selection_value].COLOR); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[m_preset_selection_value].HIGH_VOYEL); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("LOW_VOYEL =          %d", preset[m_preset_selection_value].LOW_VOYEL);
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[m_preset_selection_value].MIX_DRY_WET); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("NAME =               %s", preset[m_preset_selection_value].NAME); 
+      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("********************************************************");
+      //NRF_LOG_FLUSH();
     #endif
 }
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void set_filter_type(uint8_t filter_type)
 {
     switch(filter_type)
@@ -1331,7 +1455,157 @@ void set_filter_type(uint8_t filter_type)
 
 }
 
+
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void set_impedance(uint8_t impedance)
 {
     impedance == LOW_Z ? nrf_drv_gpiote_out_clear(IN_IMPEDANCE) : nrf_drv_gpiote_out_set(IN_IMPEDANCE);
+}
+
+
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
+uint32_t check_mode(uint8_t mode)
+{
+    ret_code_t err_code;
+
+    switch(mode)
+    {
+        case MANUAL_WAH_MODE:
+            saadc_start(&m_wah_service, SAMPLING_20MS);
+          break;
+        case MANUAL_LEVEL_MODE:
+            
+          break;
+        case AUTO_WAH_MODE:
+            timer_start_auto_wah(preset[m_preset_selection_value].TIME_AUTO_WAH);
+          break;
+        case AUTO_LEVEL_MODE:
+            timer_start_auto_level(preset[m_preset_selection_value].TIME_AUTO_LEVEL);
+          break;
+        case TALKBOX:
+
+          break;
+
+        default:
+          break;
+    }
+
+    return NRF_SUCCESS;
+}
+
+
+/**@brief Function 
+ *
+ */
+//static void sensor_evt_sceduled(void * p_event_data, uint16_t event_size)
+//{
+//    
+//}
+
+
+/**@brief Function 
+ *
+ */
+static void app_timer_periodic_handler_auto_wah(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);
+
+//    ret_code_t err_code;
+//    err_code = app_sched_event_put(0, 0, sensor_evt_sceduled);
+//    APP_ERROR_CHECK(err_code);
+
+    uint8_t max_value, min_value;
+
+    if(auto_data_up)
+    {
+        cpt_timer++;
+        update_preset(cpt_timer);
+        if(cpt_timer == preset[m_preset_selection_value].FC2)
+        {
+            auto_data_up = false;
+        }
+    }else
+    {
+        cpt_timer--;
+        update_preset(cpt_timer);
+        if(cpt_timer == preset[m_preset_selection_value].FC1)
+        {
+            auto_data_up = true;
+        }
+    }
+}
+
+
+/**@brief Function 
+ *
+ */
+static void app_timer_periodic_handler_auto_level(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);
+
+//    ret_code_t err_code;
+//    err_code = app_sched_event_put(0, 0, sensor_evt_sceduled);
+//    APP_ERROR_CHECK(err_code);
+
+
+    if(auto_data_up)
+    {
+        cpt_timer++;
+        update_preset(cpt_timer);
+        if(cpt_timer == preset[m_preset_selection_value].LV2)
+        {
+            auto_data_up = false;
+        }
+    }else
+    {
+        cpt_timer--;
+        update_preset(cpt_timer);
+        if(cpt_timer == preset[m_preset_selection_value].LV1)
+        {
+            auto_data_up = true;
+        }
+    }
+}
+
+
+/**@brief Function 
+ *
+ */
+void timer_start_auto_wah(uint16_t time)
+{
+    ret_code_t err_code;
+
+    cpt_timer = 0;
+    auto_data_up = true;
+    timer_auto_wah_is_running = true;
+    uint16_t step_time_ms = (time)/255;
+    step_time_ms == 0 ? 1 : step_time_ms;
+    NRF_LOG_INFO("TIMER_STEP_TIME %d", step_time_ms); 
+
+    err_code = app_timer_start(m_timer_auto_wah, APP_TIMER_TICKS(step_time_ms),NULL);
+    APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function 
+ *
+ */
+void timer_start_auto_level(uint16_t time)
+{
+    ret_code_t err_code;
+
+    cpt_timer = 0;
+    auto_data_up = true;
+    timer_auto_level_is_running = true;
+    uint16_t step_time_ms = (time)/255;
+    step_time_ms == 0 ? 1 : step_time_ms;
+    NRF_LOG_INFO("TIMER_STEP_TIME %d", step_time_ms); 
+
+    err_code = app_timer_start(m_timer_auto_level, APP_TIMER_TICKS(step_time_ms),NULL);
+    APP_ERROR_CHECK(err_code);
 }
