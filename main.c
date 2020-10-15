@@ -86,8 +86,11 @@
 #include "saadc.h"
 
 #include "nrf_delay.h"
-//#include "app_scheduler.h"
+#include "app_scheduler.h"
 
+// Scheduler settings
+#define SCHED_MAX_EVENT_DATA_SIZE   10
+#define SCHED_QUEUE_SIZE            10
 
 //#define DEBUG
 
@@ -473,7 +476,7 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
             NRF_LOG_INFO("BLE_WAH_EVT_PRESET_SELECTION_VALUE_RECEIVED %d", *p_evt->p_data);
             m_preset_selection_value = *p_evt->p_data;
             update_led(m_preset_selection_value);
-            update_preset(m_preset_selection_value);
+            config_preset();
             break;
 
         case BLE_WAH_EVT_PRESET_1_RECEIVED:
@@ -1224,11 +1227,13 @@ int main(void)
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
     
+    APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
+
     advertising_start(erase_bonds);
     // Enter main loop.
     for (;;)
     {
-        //app_sched_execute();
+        app_sched_execute();
         idle_state_handle();
     }
 }

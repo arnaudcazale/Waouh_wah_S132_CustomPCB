@@ -163,15 +163,15 @@ ret_code_t write_factory_presets()
     uint32_t err_code;
     uint8_t idx_prst; 
 
-    preset_32[0].FC1             = 150;
-    preset_32[0].FC2             = 200;
+    preset_32[0].FC1             = 0;
+    preset_32[0].FC2             = 255;
     preset_32[0].Q1              = 128;
     preset_32[0].Q2              = 128;
     preset_32[0].LV1             = 0;
     preset_32[0].LV2             = 0;
     preset_32[0].STATUS          = PRESET_EDIT_STATUS;
     preset_32[0].MODE            = AUTO_WAH_MODE;
-    preset_32[0].TIME_AUTO_WAH   = 500;
+    preset_32[0].TIME_AUTO_WAH   = 600;
     preset_32[0].TIME_AUTO_LEVEL = 500;
     preset_32[0].IMPEDANCE       = LOW_Z;
     preset_32[0].COLOR           = COLOR_1;
@@ -194,13 +194,13 @@ ret_code_t write_factory_presets()
     preset_32[1].STATUS          = PRESET_EDIT_STATUS;
     preset_32[1].MODE            = AUTO_LEVEL_MODE;
     preset_32[1].TIME_AUTO_WAH   = 666;
-    preset_32[1].TIME_AUTO_LEVEL = 500;
+    preset_32[1].TIME_AUTO_LEVEL = 100;
     preset_32[1].IMPEDANCE       = LOW_Z;
     preset_32[1].COLOR           = COLOR_2;
     preset_32[1].HIGH_VOYEL      = ae;
     preset_32[1].LOW_VOYEL       = uh;
     preset_32[1].MIX_DRY_WET     = 0;
-    preset_32[1].FILTER_TYPE     = HIGH_PASS;
+    preset_32[1].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[1].NAME, "PRESET_2");
 
     //flash_writing = true;
@@ -208,11 +208,11 @@ ret_code_t write_factory_presets()
     //while(flash_writing);
 
     preset_32[2].FC1             = 50;
-    preset_32[2].FC2             = 150;
-    preset_32[2].Q1              = 5;
-    preset_32[2].Q2              = 150;
-    preset_32[2].LV1             = 20;
-    preset_32[2].LV2             = 40;
+    preset_32[2].FC2             = 200;
+    preset_32[2].Q1              = 0;
+    preset_32[2].Q2              = 255;
+    preset_32[2].LV1             = 0;
+    preset_32[2].LV2             = 0;
     preset_32[2].STATUS          = PRESET_EDIT_STATUS;
     preset_32[2].MODE            = MANUAL_WAH_MODE;
     preset_32[2].TIME_AUTO_WAH   = 1000;
@@ -222,29 +222,29 @@ ret_code_t write_factory_presets()
     preset_32[2].HIGH_VOYEL      = ae;
     preset_32[2].LOW_VOYEL       = uh;
     preset_32[2].MIX_DRY_WET     = 0;
-    preset_32[2].FILTER_TYPE     = BAND_PASS;
+    preset_32[2].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[2].NAME, "PRESET_3");
 
     //flash_writing = true;
     write_preset_config(2);
     //while(flash_writing);
 
-    preset_32[3].FC1             = 75;
-    preset_32[3].FC2             = 125;
-    preset_32[3].Q1              = 75;
-    preset_32[3].Q2              = 125;
-    preset_32[3].LV1             = 30;
-    preset_32[3].LV2             = 40;
+    preset_32[3].FC1             = 128;
+    preset_32[3].FC2             = 128;
+    preset_32[3].Q1              = 128;
+    preset_32[3].Q2              = 128;
+    preset_32[3].LV1             = 0;
+    preset_32[3].LV2             = 63;
     preset_32[3].STATUS          = PRESET_EDIT_STATUS;
-    preset_32[3].MODE            = MANUAL_WAH_MODE;
+    preset_32[3].MODE            = MANUAL_LEVEL_MODE;
     preset_32[3].TIME_AUTO_WAH   = 999;
     preset_32[3].TIME_AUTO_LEVEL = 444;
-    preset_32[3].IMPEDANCE       = HIGH_Z;
+    preset_32[3].IMPEDANCE       = LOW_Z;
     preset_32[3].COLOR           = COLOR_4;
     preset_32[3].HIGH_VOYEL      = ae;
     preset_32[3].LOW_VOYEL       = uh;
     preset_32[3].MIX_DRY_WET     = 0;
-    preset_32[3].FILTER_TYPE     = NOTCH;
+    preset_32[3].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[3].NAME, "PRESET_4");
 
     //flash_writing = true;
