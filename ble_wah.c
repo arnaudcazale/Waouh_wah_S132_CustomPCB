@@ -5,20 +5,22 @@
 #include "nrf_gpio.h"
 #include "boards.h"
 #include "nrf_log.h"
-#include "app_timer.h"
+//#include "app_timer.h"
+
 
 
 extern volatile preset_config_8_t      preset[PRESET_NUMBER];
 extern volatile calib_config_8_t       calibration;
 extern volatile uint8_t                m_preset_selection_value;
 static ble_wah_t *                     m_wah_service;
-static bool                            timer_auto_wah_is_running;
-static bool                            timer_auto_level_is_running;
+static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
 static uint8_t                         auto_data_up;
 
-APP_TIMER_DEF(m_timer_auto_wah);
-APP_TIMER_DEF(m_timer_auto_level);
+//APP_TIMER_DEF(m_timer_auto_wah);
+//APP_TIMER_DEF(m_timer_auto_level);
+
+const nrf_drv_timer_t TIMER = NRF_DRV_TIMER_INSTANCE(2);
 
 uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
 {
@@ -106,11 +108,17 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
         return err_code;
     }
 
-    err_code = app_timer_create(&m_timer_auto_wah, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_wah);
+     //Configure TIMER_LED for generating simple light effect - leds on board will invert his state one after the other.
+    nrf_drv_timer_config_t timer_cfg = NRF_DRV_TIMER_DEFAULT_CONFIG;
+    err_code = nrf_drv_timer_init(&TIMER, &timer_cfg, timer_event_handler);
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_timer_auto_level, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_level);
-    APP_ERROR_CHECK(err_code);
+    
+//    err_code = app_timer_create(&m_timer_auto_wah, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_wah);
+//    APP_ERROR_CHECK(err_code);
+//
+//    err_code = app_timer_create(&m_timer_auto_level, APP_TIMER_MODE_REPEATED, app_timer_periodic_handler_auto_level);
+//    APP_ERROR_CHECK(err_code);
 
 }
 
@@ -215,7 +223,7 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
         }
     }
 
-    // If PRESET_SELECTION notification enabled/disabled written
+    // If PEDAL_VALUE notification enabled/disabled written
     if ((p_evt_write->handle == p_wah->pedal_value_handles.cccd_handle)
         && (p_evt_write->len == 2)
        )
@@ -1269,20 +1277,14 @@ void reset_config_preset()
     saadc_uninit();
 
     //Stop Timers
-    if(timer_auto_wah_is_running)
+    if(timer_is_running)
     {
-        err_code = app_timer_stop(m_timer_auto_wah);
-        APP_ERROR_CHECK(err_code);
-        timer_auto_wah_is_running = false;
+        //err_code = app_timer_stop(m_timer_auto_wah);
+        //APP_ERROR_CHECK(err_code);
+        nrf_drv_timer_disable(&TIMER);
+        timer_is_running = false;
     }
 
-    if(timer_auto_level_is_running)
-    {
-        err_code = app_timer_stop(m_timer_auto_level);
-        APP_ERROR_CHECK(err_code);
-        timer_auto_level_is_running = false;
-    }
-    
 }
 
 /**@brief Function for adding the Custom Value characteristic.
@@ -1332,7 +1334,6 @@ void update_preset(int data)
         case MANUAL_WAH_MODE:
             //Set F
             data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-            //NRF_LOG_INFO("data_F %d", data_F); 
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
 
@@ -1340,38 +1341,31 @@ void update_preset(int data)
             APP_ERROR_CHECK(err_code);
 
             //Set Q
-            data_Q =map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-            //NRF_LOG_INFO("data_Q %d", data_Q); 
+            data_Q =map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);          
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV (fixed, must be in configure_preset)
             data_L = preset[m_preset_selection_value].LV1;
-
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
 
           break;
         case MANUAL_LEVEL_MODE:
-
             //Set F, (fixed, must be in configure_preset)
             data_F = preset[m_preset_selection_value].FC1;
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q, (fixed, must be in configure_preset)
             data_Q =preset[m_preset_selection_value].Q1;
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV
             data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
             
@@ -1379,23 +1373,33 @@ void update_preset(int data)
         case AUTO_WAH_MODE:
             //Set F
             data_F = map(data, 0, 255, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
-            //Set Q
-//            data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-//            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            //Set Q (fixed, (fixed, must be in configure_preset)
+            data_Q = preset[m_preset_selection_value].Q1;
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
 
-            //Set LV
-//            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-//            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            //Set LV (fixed, (fixed, must be in configure_preset)
+            data_L = preset[m_preset_selection_value].LV1;
+            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
           break;
         case AUTO_LEVEL_MODE:
-             //Set LV
+
+            //Set F (fixed, (fixed, must be in configure_preset)
+            data_F = preset[m_preset_selection_value].FC1;
+            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+            APP_ERROR_CHECK(err_code);
+            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
+            APP_ERROR_CHECK(err_code);
+
+            //Set Q (fixed, (fixed, must be in configure_preset)
+            data_Q = preset[m_preset_selection_value].Q1;
+            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+
+            //Set LV
             data_L = map(data, 0, 64, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
           break;
@@ -1513,13 +1517,11 @@ uint32_t check_mode(uint8_t mode)
     {
         case MANUAL_WAH_MODE:
         case MANUAL_LEVEL_MODE:
-            saadc_start(&m_wah_service, SAMPLING_20MS);
+            saadc_start(m_wah_service, SAMPLING_20MS);
           break;
         case AUTO_WAH_MODE:
-            timer_start_auto_wah(preset[m_preset_selection_value].TIME_AUTO_WAH);
-          break;
         case AUTO_LEVEL_MODE:
-            timer_start_auto_level(preset[m_preset_selection_value].TIME_AUTO_LEVEL);
+            timer_start();
           break;
         case TALKBOX:
 
@@ -1532,64 +1534,88 @@ uint32_t check_mode(uint8_t mode)
     return NRF_SUCCESS;
 }
 
+// KILL SWITCH EFFECT
+//      if(auto_data_up)
+//      {
+//          update_preset(preset[m_preset_selection_value].LV2);
+//          auto_data_up = false;
+//          
+//      }else
+//      {
+//          update_preset(preset[m_preset_selection_value].LV1);
+//          auto_data_up = true; 
+//      }
+
+
 
 /**@brief Function 
  *
  */
-//static void sensor_evt_sceduled(void * p_event_data, uint16_t event_size)
-//{
-//    
-//}
-
-/**@brief Button handler function to be called by the scheduler.
- */
-void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size)
+static void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
 {
-    uint8_t max_value, min_value;
+    ret_code_t err_code;
 
-    if(auto_data_up)
+    switch (event_type)
     {
-        cpt_timer++;
-        update_preset(cpt_timer);
-        if(cpt_timer == preset[m_preset_selection_value].FC2)
-        {
-            auto_data_up = false;
-        }
-    }else
-    {
-        cpt_timer--;
-        update_preset(cpt_timer);
-        if(cpt_timer == preset[m_preset_selection_value].FC1)
-        {
-            auto_data_up = true;
-        }
-    }
+        case NRF_TIMER_EVENT_COMPARE0:
 
-}
+            if(preset[m_preset_selection_value].MODE == AUTO_WAH_MODE)
+            {
+//                err_code = app_sched_event_put(0, 0, auto_wah_scheduler_event_handler);
+//                APP_ERROR_CHECK(err_code);
+                  
+                  uint8_t max_value, min_value;
 
-/**@brief Button handler function to be called by the scheduler.
- */
-void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size)
-{
-  if(auto_data_up)
-      {
-          cpt_timer++;
-          update_preset(cpt_timer);
-          if(cpt_timer == preset[m_preset_selection_value].LV2)
-          {
-              auto_data_up = false;
+                  if(auto_data_up)
+                  {
+                      cpt_timer++;
+                      update_preset(cpt_timer);
+                      if(cpt_timer == preset[m_preset_selection_value].FC2)
+                      {
+                          auto_data_up = false;
+                      }
+                  }else
+                  {
+                      cpt_timer--;
+                      update_preset(cpt_timer);
+                      if(cpt_timer == preset[m_preset_selection_value].FC1)
+                      {
+                          auto_data_up = true;
+                      }
+                  }
+
+            }else if(preset[m_preset_selection_value].MODE == AUTO_LEVEL_MODE)
+            {
+//                err_code = app_sched_event_put(0, 0, auto_level_scheduler_event_handler);
+//                APP_ERROR_CHECK(err_code);
+
+            if(auto_data_up)
+            {
+                cpt_timer++;
+                update_preset(cpt_timer);
+                if(cpt_timer == preset[m_preset_selection_value].LV2)
+                {
+                    auto_data_up = false;
+                }
+            }else
+            {
+                cpt_timer--;
+                update_preset(cpt_timer);
+                if(cpt_timer == preset[m_preset_selection_value].LV1)
+                {
+                    auto_data_up = true;
+                }
+            }
+                  
+                  }
+
+                  break;
+
+              default:
+                  //Do nothing.
+                  break;
           }
-      }else
-      {
-          cpt_timer--;
-          update_preset(cpt_timer);
-          if(cpt_timer == preset[m_preset_selection_value].LV1)
-          {
-              auto_data_up = true;
-          }
-      }
 }
-
 
 /**@brief Function 
  *
@@ -1620,35 +1646,42 @@ static void app_timer_periodic_handler_auto_level(void * p_context)
 /**@brief Function 
  *
  */
-void timer_start_auto_wah(uint16_t time)
+void timer_start()
 {
     ret_code_t err_code;
-
+    uint16_t time;
+    uint8_t step_nbr;
+    uint32_t time_us;
+    uint32_t time_ticks;
     cpt_timer = 0;
     auto_data_up = true;
-    timer_auto_wah_is_running = true;
-    uint16_t step_time_ms = (time)/255;
-    step_time_ms == 0 ? 1 : step_time_ms;
-    NRF_LOG_INFO("TIMER_STEP_TIME %d", step_time_ms); 
+    timer_is_running = true;
 
-    err_code = app_timer_start(m_timer_auto_wah, APP_TIMER_TICKS(step_time_ms),NULL);
-    APP_ERROR_CHECK(err_code);
+    switch(preset[m_preset_selection_value].MODE)
+    {
+        case AUTO_WAH_MODE:
+          time = preset[m_preset_selection_value].TIME_AUTO_WAH;
+          step_nbr = (preset[m_preset_selection_value].FC2 - preset[m_preset_selection_value].FC1);
+          step_nbr == 0 ? 1 : step_nbr;
+          time_us = (time*1000)/step_nbr;
+          break;
+
+        case AUTO_LEVEL_MODE:
+          time = preset[m_preset_selection_value].TIME_AUTO_LEVEL;
+          step_nbr = (preset[m_preset_selection_value].LV2 - preset[m_preset_selection_value].LV1);
+          step_nbr == 0 ? 1 : step_nbr;
+          time_us = (time*1000)/step_nbr;
+          break;
+    }
+    
+    NRF_LOG_INFO("time_us %d", time_us);
+
+    time_ticks = nrf_drv_timer_us_to_ticks(&TIMER, time_us); 
+
+    nrf_drv_timer_extended_compare(
+         &TIMER, NRF_TIMER_CC_CHANNEL0, time_ticks, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
+
+    nrf_drv_timer_enable(&TIMER);
+
 }
 
-/**@brief Function 
- *
- */
-void timer_start_auto_level(uint16_t time)
-{
-    ret_code_t err_code;
-
-    cpt_timer = 0;
-    auto_data_up = true;
-    timer_auto_level_is_running = true;
-    uint16_t step_time_ms = (time)/64;
-    step_time_ms == 0 ? 1 : step_time_ms;
-    NRF_LOG_INFO("TIMER_STEP_TIME %d", step_time_ms); 
-
-    err_code = app_timer_start(m_timer_auto_level, APP_TIMER_TICKS(step_time_ms),NULL);
-    APP_ERROR_CHECK(err_code);
-}

@@ -6,6 +6,7 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "utils.h"
+#include "nrf_drv_timer.h"
 
 #include "drv_AD5263.h"
 #include "drv_DS1882.h"
@@ -164,6 +165,7 @@ static void timer_start_auto_wah(uint16_t );
 static void timer_start_auto_level(uint16_t );
 static void app_timer_periodic_handler_auto_wah(void * p_context);
 static void app_timer_periodic_handler_auto_level(void * p_context);
+static void timer_event_handler(nrf_timer_event_t event_type, void* p_context);
 void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 

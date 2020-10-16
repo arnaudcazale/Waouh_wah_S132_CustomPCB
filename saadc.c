@@ -9,6 +9,7 @@ static ble_wah_t * m_wah_service;
 static uint8_t m_sampling_time;
 static uint16_t m_data = 0;
 static uint8_t saadc_is_initialized = false;
+static bool notif_authorize = false;
 
 /**
  * @brief Function for confguring SAADC channel 0 for sampling AIN0 (P0.02).
@@ -120,9 +121,7 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 
         if( ( new_data < (m_data - MARGE_DATA_IN) ) || ( new_data > (m_data + MARGE_DATA_IN) ))
         {
-          //NRF_LOG_INFO("PEDAL_DATA %d", new_data);
           update_preset(new_data);
-          
           if(m_wah_service->is_pedal_value_notif_enabled)
           {
             pedal_data_value_update(m_wah_service, new_data);
@@ -159,4 +158,9 @@ void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time)
     saadc_init();
     saadc_sampling_event_init();
     saadc_sampling_event_enable();
+}
+
+void authorize_notifs(bool enable)
+{
+    notif_authorize = enable;
 }

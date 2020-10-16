@@ -89,8 +89,8 @@
 #include "app_scheduler.h"
 
 // Scheduler settings
-#define SCHED_MAX_EVENT_DATA_SIZE   10
-#define SCHED_QUEUE_SIZE            10
+#define SCHED_MAX_EVENT_DATA_SIZE   12
+#define SCHED_QUEUE_SIZE            60
 
 //#define DEBUG
 
@@ -517,16 +517,14 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
 
         case BLE_WAH_EVT_NOTIF_PEDAL_VALUE:
             NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_PEDAL_VALUE - %d", p_wah_service->is_pedal_value_notif_enabled);
-            if(p_wah_service->is_pedal_value_notif_enabled)
-            {
-                //RUN SAADC;
-                //saadc_sampling_event_enable();
-
-            }else
-            {
-                //STOP SAADC;
-                //saadc_sampling_event_disable();
-            }
+//            if(p_wah_service->is_pedal_value_notif_enabled)
+//            {
+//              
+//
+//            }else
+//            {
+//               
+//            }
             
             break;
            
@@ -1162,7 +1160,7 @@ static void twi_init(void)
     {
         .scl = TWI_SCL,
         .sda = TWI_SDA,
-        .frequency          = NRF_TWI_FREQ_100K,
+        .frequency          = NRF_TWI_FREQ_400K,
         .interrupt_priority = APP_IRQ_PRIORITY_LOW,  //APP_IRQ_PRIORITY_LOW 
     };
   
@@ -1201,6 +1199,8 @@ void preset_init()
 
 int main(void)
 
+
+
 {
     bool erase_bonds;
     bool restore_factory;
@@ -1222,18 +1222,16 @@ int main(void)
     peer_manager_init();
     preset_init();
 
-    //APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
-
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
     
-    APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
+    //APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
 
     advertising_start(erase_bonds);
     // Enter main loop.
     for (;;)
     {
-        app_sched_execute();
+        //app_sched_execute();
         idle_state_handle();
     }
 }
