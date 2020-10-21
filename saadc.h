@@ -16,7 +16,7 @@ enum
     M_SAADC_STATUS_CODE_INVALID_PARAM,               ///< Invalid parameters
 };
 
-#define MARGE_DATA_IN 3
+#define MARGE_DATA_IN 0
 
 #define SAMPLES_IN_BUFFER 1
 #define ADC_GAIN                    NRF_SAADC_GAIN1_6     // ADC gain.
