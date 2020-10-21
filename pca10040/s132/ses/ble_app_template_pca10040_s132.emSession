@@ -77,25 +77,25 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1203" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="0" top="1196" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="52" y="1403" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="1" top="1483" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="257" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="246" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="24" y="5" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1203" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1196" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="94" y="1687" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="1624" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="257" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="246" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="5" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="29" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_DS1882.c" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/nrf_error.h" selected="0" top="37" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_AD5263.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.c" selected="0" top="30" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="12" y="3739" useTextEdit="1" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="3739" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="87" y="121" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.c" selected="0" top="114" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="3739" useTextEdit="1" useBinaryEdit="0" left="0" path="../config/sdk_config.h" selected="0" top="3739" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="107" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/util/app_error_weak.c" selected="0" top="92" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="987" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/timer/app_timer.c" selected="0" top="972" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="171" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/timer/app_timer.h" selected="0" top="156" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="63" y="65" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/nrf_drv_timer.h" selected="0" top="56" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="65" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/nrf_drv_timer.h" selected="0" top="56" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="67" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_saadc.h" selected="0" top="18" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="14" y="115" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/include/nrfx_timer.h" selected="0" top="99" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="212" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_timer.h" selected="0" top="200" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="115" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/include/nrfx_timer.h" selected="0" top="99" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="212" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/hal/nrf_timer.h" selected="0" top="200" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="130" useTextEdit="1" useBinaryEdit="0" left="0" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 4.16/include/stdint.h" selected="0" top="115" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="32" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.h" selected="0" top="14" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="18" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.h" selected="0" top="14" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="132" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/scheduler/app_scheduler.c" selected="0" top="118" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="75" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../custom_board.h" selected="0" top="54" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/pca10040.h" selected="0" top="0" codecName="Default"/>
@@ -103,7 +103,7 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="101" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/boards.c" selected="0" top="86" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="75" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/custom_board.h" selected="0" top="65" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="65" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_timer.c" selected="0" top="48" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="75" y="1069" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/apply_old_config.h" selected="0" top="1046" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1069" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/apply_old_config.h" selected="0" top="1046" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="Keyztone_Waouh_wah_PCB_custom" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/Nordic/SDK/nRF5_SDK_15.0.0_a53641a/examples/ble_peripheral/Keyztone_WahWah_PCB" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>

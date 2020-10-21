@@ -71,6 +71,7 @@
       <file file_name="../../../../../../components/libraries/fifo/app_fifo.c" />
       <file file_name="../../../../../../components/libraries/uart/app_uart_fifo.c" />
       <file file_name="../../../../../../components/libraries/uart/retarget.c" />
+      <file file_name="../../../../../../components/libraries/pwm/app_pwm.c" />
     </folder>
     <folder Name="Board Definition">
       <file file_name="../../../../../../components/boards/boards.c" />
@@ -91,6 +92,7 @@
       <file file_name="../../../../../../integration/nrfx/legacy/nrf_drv_twi.c" />
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twi.c" />
       <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_twim.c" />
+      <file file_name="../../../../../../modules/nrfx/drivers/src/nrfx_pwm.c" />
     </folder>
     <folder Name="Board Support">
       <file file_name="../../../../../../components/libraries/bsp/bsp.c" />
@@ -109,7 +111,6 @@
       <file file_name="../../../drv_AD5263.h" />
       <file file_name="../../../drv_DS1882.c" />
       <file file_name="../../../drv_DS1882.h" />
-      <file file_name="../../../custom_board.h" />
     </folder>
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT.c" />

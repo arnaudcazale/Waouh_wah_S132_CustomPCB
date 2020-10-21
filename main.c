@@ -86,11 +86,13 @@
 #include "saadc.h"
 
 #include "nrf_delay.h"
-#include "app_scheduler.h"
+//#include "app_scheduler.h"
+
+#include "nrf_drv_pwm.h"
 
 // Scheduler settings
-#define SCHED_MAX_EVENT_DATA_SIZE   12
-#define SCHED_QUEUE_SIZE            60
+//#define SCHED_MAX_EVENT_DATA_SIZE   12
+//#define SCHED_QUEUE_SIZE            60
 
 //#define DEBUG
 
@@ -155,6 +157,8 @@ static uint8_t m_is_on_edit_mode = false;
 
 APP_TIMER_DEF(m_timer_id);
 APP_TIMER_DEF(m_sec_req_timer_id);                                                  /**< Security Request timer. */
+
+static nrf_drv_pwm_t m_pwm0 = NRF_DRV_PWM_INSTANCE(0);
 
 #define APP_TIMER_SCHED_EVENT_DATA_SIZE sizeof(app_timer_event_t)
 
@@ -1194,6 +1198,52 @@ void preset_init()
 }
 
 
+
+/**@brief Function for application main entry.
+ */
+void pwm_init()
+{
+    uint32_t err_code;
+    nrf_drv_pwm_config_t const config0 =
+    {
+        .output_pins =
+        {
+            PWM,                                  // channel 0
+            NRF_DRV_PWM_PIN_NOT_USED,             // channel 1
+            NRF_DRV_PWM_PIN_NOT_USED,             // channel 2
+            NRF_DRV_PWM_PIN_NOT_USED,             // channel 3
+        },
+        .irq_priority = APP_IRQ_PRIORITY_LOW,
+        .base_clock   = NRF_PWM_CLK_1MHz,
+        .count_mode   = NRF_PWM_MODE_UP,
+        .top_value    = 100,
+        .load_mode    = NRF_PWM_LOAD_COMMON,
+        .step_mode    = NRF_PWM_STEP_AUTO
+    };
+
+    err_code = nrf_drv_pwm_init(&m_pwm0, &config0, NULL);
+    if (err_code != NRF_SUCCESS)
+    {
+        // Initialization failed. Take recovery action.
+    }
+
+    static nrf_pwm_values_common_t seq_values[] =
+    {
+        50
+    };
+    nrf_pwm_sequence_t const seq =
+    {
+        .values.p_common = seq_values,
+        .length          = NRF_PWM_VALUES_LENGTH(seq_values),
+        .repeats         = 0,
+        .end_delay       = 0
+    };
+
+    nrf_drv_pwm_simple_playback(&m_pwm0, &seq, 1, NRF_DRV_PWM_FLAG_LOOP);
+
+}
+
+
 /**@brief Function for application main entry.
  */
 
@@ -1221,6 +1271,7 @@ int main(void)
     conn_params_init();
     peer_manager_init();
     preset_init();
+    pwm_init();
 
     // Start execution.
     NRF_LOG_INFO("Keyztone_WahWah started.");
@@ -1228,6 +1279,8 @@ int main(void)
     //APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
 
     advertising_start(erase_bonds);
+
+   
     // Enter main loop.
     for (;;)
     {
