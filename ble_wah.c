@@ -1677,7 +1677,7 @@ void timer_start()
         case AUTO_WAH_MODE:
           step_nbr = (preset[m_preset_selection_value].FC2 - preset[m_preset_selection_value].FC1);
           min_to_map = (step_nbr*500)/1000;                                                                     //temps minimal pour effectuer un balayage (en ms)
-          time = map(preset[m_preset_selection_value].TIME_AUTO_WAH, 0, 65535, min_to_map, 5000);
+          time = map(preset[m_preset_selection_value].TIME_AUTO_WAH, 0, 65535, min_to_map, 1000);
           step_nbr == 0 ? 1 : step_nbr;
           time_us = (time*1000)/step_nbr;
           break;
@@ -1685,7 +1685,7 @@ void timer_start()
         case AUTO_LEVEL_MODE:
           step_nbr = (preset[m_preset_selection_value].LV2 - preset[m_preset_selection_value].LV1);
           min_to_map = (step_nbr*500)/1000;
-          time = map(preset[m_preset_selection_value].TIME_AUTO_LEVEL, 0, 65535, min_to_map, 5000);
+          time = map(preset[m_preset_selection_value].TIME_AUTO_LEVEL, 0, 65535, min_to_map, 1000);
           step_nbr == 0 ? 1 : step_nbr;
           time_us = (time*1000)/step_nbr;
           break;
