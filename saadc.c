@@ -59,7 +59,7 @@ void saadc_uninit()
       nrf_drv_ppi_uninit();
       nrf_drv_saadc_abort();
       nrf_drv_saadc_uninit();
-      //while(nrf_drv_saadc_is_busy());
+      while(nrf_drv_saadc_is_busy());
       saadc_is_initialized = false;
     }
 }

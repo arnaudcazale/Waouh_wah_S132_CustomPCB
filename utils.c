@@ -171,8 +171,8 @@ ret_code_t write_factory_presets()
     preset_32[0].LV2             = 0;
     preset_32[0].STATUS          = PRESET_EDIT_STATUS;
     preset_32[0].MODE            = AUTO_WAH_MODE;
-    preset_32[0].TIME_AUTO_WAH   = 255;
-    preset_32[0].TIME_AUTO_LEVEL = 500;
+    preset_32[0].TIME_AUTO_WAH   = 32000;
+    preset_32[0].TIME_AUTO_LEVEL = 32000;
     preset_32[0].IMPEDANCE       = LOW_Z;
     preset_32[0].COLOR           = COLOR_1;
     preset_32[0].HIGH_VOYEL      = ae;
@@ -193,8 +193,8 @@ ret_code_t write_factory_presets()
     preset_32[1].LV2             = 63;
     preset_32[1].STATUS          = PRESET_EDIT_STATUS;
     preset_32[1].MODE            = AUTO_LEVEL_MODE;
-    preset_32[1].TIME_AUTO_WAH   = 666;
-    preset_32[1].TIME_AUTO_LEVEL = 64;
+    preset_32[1].TIME_AUTO_WAH   = 32000;
+    preset_32[1].TIME_AUTO_LEVEL = 32000;
     preset_32[1].IMPEDANCE       = LOW_Z;
     preset_32[1].COLOR           = COLOR_2;
     preset_32[1].HIGH_VOYEL      = ae;
@@ -215,8 +215,8 @@ ret_code_t write_factory_presets()
     preset_32[2].LV2             = 0;
     preset_32[2].STATUS          = PRESET_EDIT_STATUS;
     preset_32[2].MODE            = MANUAL_WAH_MODE;
-    preset_32[2].TIME_AUTO_WAH   = 1000;
-    preset_32[2].TIME_AUTO_LEVEL = 500;
+    preset_32[2].TIME_AUTO_WAH   = 32000;
+    preset_32[2].TIME_AUTO_LEVEL = 32000;
     preset_32[2].IMPEDANCE       = LOW_Z;
     preset_32[2].COLOR           = COLOR_3;
     preset_32[2].HIGH_VOYEL      = ae;
@@ -237,8 +237,8 @@ ret_code_t write_factory_presets()
     preset_32[3].LV2             = 63;
     preset_32[3].STATUS          = PRESET_EDIT_STATUS;
     preset_32[3].MODE            = MANUAL_LEVEL_MODE;
-    preset_32[3].TIME_AUTO_WAH   = 999;
-    preset_32[3].TIME_AUTO_LEVEL = 444;
+    preset_32[3].TIME_AUTO_WAH   = 32000;
+    preset_32[3].TIME_AUTO_LEVEL = 32000;
     preset_32[3].IMPEDANCE       = LOW_Z;
     preset_32[3].COLOR           = COLOR_4;
     preset_32[3].HIGH_VOYEL      = ae;
