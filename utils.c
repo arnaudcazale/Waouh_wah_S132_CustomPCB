@@ -168,17 +168,17 @@ ret_code_t write_factory_presets()
     preset_32[0].Q1              = 128;
     preset_32[0].Q2              = 128;
     preset_32[0].LV1             = 0;
-    preset_32[0].LV2             = 0;
+    preset_32[0].LV2             = 63;
     preset_32[0].STATUS          = PRESET_EDIT_STATUS;
     preset_32[0].MODE            = AUTO_WAH_MODE;
-    preset_32[0].TIME_AUTO_WAH   = 32000;
+    preset_32[0].TIME_AUTO_WAH   = 64000;
     preset_32[0].TIME_AUTO_LEVEL = 32000;
     preset_32[0].IMPEDANCE       = LOW_Z;
     preset_32[0].COLOR           = COLOR_1;
     preset_32[0].HIGH_VOYEL      = ae;
     preset_32[0].LOW_VOYEL       = uh;
     preset_32[0].MIX_DRY_WET1    = 0;
-    preset_32[0].MIX_DRY_WET2    = 63;
+    preset_32[0].MIX_DRY_WET2    = 0;
     preset_32[0].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[0].NAME, "PRESET_1");
 
@@ -195,13 +195,13 @@ ret_code_t write_factory_presets()
     preset_32[1].STATUS          = PRESET_EDIT_STATUS;
     preset_32[1].MODE            = AUTO_LEVEL_MODE;
     preset_32[1].TIME_AUTO_WAH   = 32000;
-    preset_32[1].TIME_AUTO_LEVEL = 32000;
+    preset_32[1].TIME_AUTO_LEVEL = 64000;
     preset_32[1].IMPEDANCE       = LOW_Z;
     preset_32[1].COLOR           = COLOR_2;
     preset_32[1].HIGH_VOYEL      = ae;
     preset_32[1].LOW_VOYEL       = uh;
     preset_32[1].MIX_DRY_WET1    = 0;
-    preset_32[1].MIX_DRY_WET2    = 63;
+    preset_32[1].MIX_DRY_WET2    = 0;
     preset_32[1].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[1].NAME, "PRESET_2");
 
@@ -224,7 +224,7 @@ ret_code_t write_factory_presets()
     preset_32[2].HIGH_VOYEL      = ae;
     preset_32[2].LOW_VOYEL       = uh;
     preset_32[2].MIX_DRY_WET1    = 0;
-    preset_32[2].MIX_DRY_WET2    = 63;
+    preset_32[2].MIX_DRY_WET2    = 0;
     preset_32[2].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[2].NAME, "PRESET_3");
 
@@ -247,7 +247,7 @@ ret_code_t write_factory_presets()
     preset_32[3].HIGH_VOYEL      = ae;
     preset_32[3].LOW_VOYEL       = uh;
     preset_32[3].MIX_DRY_WET1    = 0;
-    preset_32[3].MIX_DRY_WET2    = 63;
+    preset_32[3].MIX_DRY_WET2    = 0;
     preset_32[3].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[3].NAME, "PRESET_4");
 

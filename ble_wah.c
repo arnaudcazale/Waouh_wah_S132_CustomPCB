@@ -1384,43 +1384,50 @@ void update_preset(int data)
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
+            //NRF_LOG_INFO("data_F %d", data_F);
 
             //Set Q 
             data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
+            //NRF_LOG_INFO("data_Q %d", data_Q);
 
             //Set LV
             data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
+//            NRF_LOG_INFO("data %d", data);
+//            NRF_LOG_INFO("data_L %d", data_L);
 
             //Set MIX_DRY_WET
             data_M = map(data, 0, 255, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
+            //NRF_LOG_INFO("data_M %d", data_M);
           break;
 
         case AUTO_LEVEL_MODE:
             //Set F 
-            data_F = map(data, 0, 255, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            data_F = map(data, 0, 63, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q 
-            data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+            data_Q = map(data, 0, 63, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV
-            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, 0, 63, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
+//            NRF_LOG_INFO("data %d", data);
+//            NRF_LOG_INFO("data_L %d", data_L);
 
             //Set MIX_DRY_WET
-            data_M = map(data, 0, 255, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            data_M = map(data, 0, 63, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
 
