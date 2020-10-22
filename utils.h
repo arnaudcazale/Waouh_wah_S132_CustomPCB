@@ -45,9 +45,10 @@
 #define INDEX_COLOR            13
 #define INDEX_HIGH_VOYEL       14
 #define INDEX_LOW_VOYEL        15
-#define INDEX_MIX_DRY_WET      16
-#define INDEX_FILTER_TYPE      17
-#define INDEX_NAME             18
+#define INDEX_MIX_DRY_WET1     16
+#define INDEX_MIX_DRY_WET2     17
+#define INDEX_FILTER_TYPE      18
+#define INDEX_NAME             19
 
 #define NAME_MAX_LENGTH        20
 
@@ -134,7 +135,8 @@ typedef PACKED( struct
     __ALIGN(4) uint8_t                  COLOR;
     __ALIGN(4) uint8_t                  HIGH_VOYEL;
     __ALIGN(4) uint8_t                  LOW_VOYEL;
-    __ALIGN(4) uint8_t                  MIX_DRY_WET;
+    __ALIGN(4) uint8_t                  MIX_DRY_WET1;
+    __ALIGN(4) uint8_t                  MIX_DRY_WET2;
     __ALIGN(4) uint8_t                  FILTER_TYPE;
     __ALIGN(4) char                     NAME[NAME_MAX_LENGTH];
    
@@ -156,7 +158,8 @@ typedef PACKED( struct
      uint8_t                  COLOR;
      uint8_t                  HIGH_VOYEL;
      uint8_t                  LOW_VOYEL;
-     uint8_t                  MIX_DRY_WET;
+     uint8_t                  MIX_DRY_WET1;
+     uint8_t                  MIX_DRY_WET2;
      uint8_t                  FILTER_TYPE;
      char                     NAME[NAME_MAX_LENGTH];
 

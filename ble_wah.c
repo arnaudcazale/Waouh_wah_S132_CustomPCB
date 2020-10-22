@@ -1181,7 +1181,8 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
     preset[m_preset_selection_value].COLOR           = data[INDEX_COLOR];
     preset[m_preset_selection_value].HIGH_VOYEL      = data[INDEX_HIGH_VOYEL];
     preset[m_preset_selection_value].LOW_VOYEL       = data[INDEX_LOW_VOYEL];
-    preset[m_preset_selection_value].MIX_DRY_WET     = data[INDEX_MIX_DRY_WET];
+    preset[m_preset_selection_value].MIX_DRY_WET1    = data[INDEX_MIX_DRY_WET1];
+    preset[m_preset_selection_value].MIX_DRY_WET2    = data[INDEX_MIX_DRY_WET2];
     preset[m_preset_selection_value].FILTER_TYPE     = data[INDEX_FILTER_TYPE];
     strcpy(preset[m_preset_selection_value].NAME,      "");
     strcpy(preset[m_preset_selection_value].NAME,      &data[INDEX_NAME]);
@@ -1231,7 +1232,8 @@ void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
               preset[i].COLOR           = preset[m_preset_selection_value].COLOR;
               preset[i].HIGH_VOYEL      = preset[m_preset_selection_value].HIGH_VOYEL;
               preset[i].LOW_VOYEL       = preset[m_preset_selection_value].LOW_VOYEL;
-              preset[i].MIX_DRY_WET     = preset[m_preset_selection_value].MIX_DRY_WET;
+              preset[i].MIX_DRY_WET1    = preset[m_preset_selection_value].MIX_DRY_WET1;
+              preset[i].MIX_DRY_WET2    = preset[m_preset_selection_value].MIX_DRY_WET2;
               preset[i].FILTER_TYPE     = preset[m_preset_selection_value].FILTER_TYPE;
   
               save_preset2flash(i);
@@ -1296,9 +1298,6 @@ void config_preset()
 
     reset_config_preset();
 
-    //Set MIX_DRY_WET
-    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &preset[m_preset_selection_value].MIX_DRY_WET);
-
     //Set GAIN
     uint8_t data_G = 128;
     drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_4, &data_G);
@@ -1326,94 +1325,105 @@ void config_preset()
 void update_preset(int data)
 {
     uint32_t err_code;
-    uint8_t data_F, data_Q, data_L;
+    uint8_t data_F, data_Q, data_L, data_M;
    
     switch(preset[m_preset_selection_value].MODE)
     {
         case MANUAL_WAH_MODE:
             //Set F
             data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
             data_Q =map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
-                    
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV 
             data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            APP_ERROR_CHECK(err_code);
+
+            //Set MIX_DRY_WET
+            data_M = map(data, 0, SAADC_RES, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
 
         case MANUAL_LEVEL_MODE:
             //Set F
             data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
             data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV
             data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            APP_ERROR_CHECK(err_code);
+
+            //Set MIX_DRY_WET
+            data_M = map(data, 0, SAADC_RES, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
 
         case AUTO_WAH_MODE:
             //Set F
             data_F = map(data, 0, 255, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q 
             data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-
-            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            APP_ERROR_CHECK(err_code);
 
             //Set LV
-            data_L = map(data, 0, 63, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            APP_ERROR_CHECK(err_code);
 
-            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            //Set MIX_DRY_WET
+            data_M = map(data, 0, 255, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+            APP_ERROR_CHECK(err_code);
           break;
 
         case AUTO_LEVEL_MODE:
             //Set F 
             data_F = map(data, 0, 255, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
-
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q 
             data_Q = map(data, 0, 255, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
-            drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+            APP_ERROR_CHECK(err_code);
 
             //Set LV
-            data_L = map(data, 0, 63, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-            drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            data_L = map(data, 0, 255, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+            APP_ERROR_CHECK(err_code);
+
+            //Set MIX_DRY_WET
+            data_M = map(data, 0, 255, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+            APP_ERROR_CHECK(err_code);
+
           break;
         case TALKBOX:
 
@@ -1461,7 +1471,9 @@ void debug_preset (uint8_t m_preset_selection_value)
       //NRF_LOG_FLUSH();
       NRF_LOG_INFO("LOW_VOYEL =          %d", preset[m_preset_selection_value].LOW_VOYEL);
       //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[m_preset_selection_value].MIX_DRY_WET); 
+      NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset[m_preset_selection_value].MIX_DRY_WET1); 
+      //NRF_LOG_FLUSH();
+      NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[m_preset_selection_value].MIX_DRY_WET2); 
       //NRF_LOG_FLUSH();
       NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE); 
       //NRF_LOG_FLUSH();
@@ -1598,6 +1610,7 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
                       }
                   }
 
+
             }else if(preset[m_preset_selection_value].MODE == AUTO_LEVEL_MODE)
             {
 //                err_code = app_sched_event_put(0, 0, auto_level_scheduler_event_handler);
@@ -1676,7 +1689,7 @@ void timer_start()
     {
         case AUTO_WAH_MODE:
           step_nbr = (preset[m_preset_selection_value].FC2 - preset[m_preset_selection_value].FC1);
-          min_to_map = (step_nbr*500)/1000;                                                                     //temps minimal pour effectuer un balayage (en ms)
+          min_to_map = (step_nbr*600)/1000;                                                                     //temps minimal pour effectuer un balayage (en ms)
           time = map(preset[m_preset_selection_value].TIME_AUTO_WAH, 0, 65535, min_to_map, 1000);
           step_nbr == 0 ? 1 : step_nbr;
           time_us = (time*1000)/step_nbr;
@@ -1684,7 +1697,7 @@ void timer_start()
 
         case AUTO_LEVEL_MODE:
           step_nbr = (preset[m_preset_selection_value].LV2 - preset[m_preset_selection_value].LV1);
-          min_to_map = (step_nbr*500)/1000;
+          min_to_map = (step_nbr*600)/1000;
           time = map(preset[m_preset_selection_value].TIME_AUTO_LEVEL, 0, 65535, min_to_map, 1000);
           step_nbr == 0 ? 1 : step_nbr;
           time_us = (time*1000)/step_nbr;

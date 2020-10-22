@@ -177,7 +177,8 @@ ret_code_t write_factory_presets()
     preset_32[0].COLOR           = COLOR_1;
     preset_32[0].HIGH_VOYEL      = ae;
     preset_32[0].LOW_VOYEL       = uh;
-    preset_32[0].MIX_DRY_WET     = 0;
+    preset_32[0].MIX_DRY_WET1    = 0;
+    preset_32[0].MIX_DRY_WET2    = 63;
     preset_32[0].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[0].NAME, "PRESET_1");
 
@@ -199,7 +200,8 @@ ret_code_t write_factory_presets()
     preset_32[1].COLOR           = COLOR_2;
     preset_32[1].HIGH_VOYEL      = ae;
     preset_32[1].LOW_VOYEL       = uh;
-    preset_32[1].MIX_DRY_WET     = 0;
+    preset_32[1].MIX_DRY_WET1    = 0;
+    preset_32[1].MIX_DRY_WET2    = 63;
     preset_32[1].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[1].NAME, "PRESET_2");
 
@@ -221,7 +223,8 @@ ret_code_t write_factory_presets()
     preset_32[2].COLOR           = COLOR_3;
     preset_32[2].HIGH_VOYEL      = ae;
     preset_32[2].LOW_VOYEL       = uh;
-    preset_32[2].MIX_DRY_WET     = 0;
+    preset_32[2].MIX_DRY_WET1    = 0;
+    preset_32[2].MIX_DRY_WET2    = 63;
     preset_32[2].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[2].NAME, "PRESET_3");
 
@@ -243,7 +246,8 @@ ret_code_t write_factory_presets()
     preset_32[3].COLOR           = COLOR_4;
     preset_32[3].HIGH_VOYEL      = ae;
     preset_32[3].LOW_VOYEL       = uh;
-    preset_32[3].MIX_DRY_WET     = 0;
+    preset_32[3].MIX_DRY_WET1    = 0;
+    preset_32[3].MIX_DRY_WET2    = 63;
     preset_32[3].FILTER_TYPE     = LOW_PASS;
     strcpy(preset_32[3].NAME, "PRESET_4");
 
@@ -398,7 +402,8 @@ void load_flash_config()
         preset_32[idx_prst].COLOR           = data->COLOR;
         preset_32[idx_prst].HIGH_VOYEL      = data->HIGH_VOYEL;
         preset_32[idx_prst].LOW_VOYEL       = data->LOW_VOYEL;
-        preset_32[idx_prst].MIX_DRY_WET     = data->MIX_DRY_WET;
+        preset_32[idx_prst].MIX_DRY_WET1    = data->MIX_DRY_WET1;
+        preset_32[idx_prst].MIX_DRY_WET2    = data->MIX_DRY_WET2;
         preset_32[idx_prst].FILTER_TYPE     = data->FILTER_TYPE;
         strcpy(preset_32[idx_prst].NAME,      data->NAME);
 
@@ -416,7 +421,8 @@ void load_flash_config()
         preset[idx_prst].COLOR           = preset_32[idx_prst].COLOR;
         preset[idx_prst].HIGH_VOYEL      = preset_32[idx_prst].HIGH_VOYEL;
         preset[idx_prst].LOW_VOYEL       = preset_32[idx_prst].LOW_VOYEL;
-        preset[idx_prst].MIX_DRY_WET     = preset_32[idx_prst].MIX_DRY_WET;
+        preset[idx_prst].MIX_DRY_WET1    = preset_32[idx_prst].MIX_DRY_WET1;
+        preset[idx_prst].MIX_DRY_WET2    = preset_32[idx_prst].MIX_DRY_WET2;
         preset[idx_prst].FILTER_TYPE     = preset_32[idx_prst].FILTER_TYPE;
         strcpy(preset[idx_prst].NAME,      preset_32[idx_prst].NAME);
 
@@ -437,7 +443,8 @@ void load_flash_config()
           NRF_LOG_INFO("COLOR =              %d", preset[idx_prst].COLOR); 
           NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[idx_prst].HIGH_VOYEL); 
           NRF_LOG_INFO("LOW_VOYEL =          %d", preset[idx_prst].LOW_VOYEL);
-          NRF_LOG_INFO("MIX_DRY_WET =        %d", preset[idx_prst].MIX_DRY_WET); 
+          NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset[idx_prst].MIX_DRY_WET1); 
+          NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[idx_prst].MIX_DRY_WET2); 
           NRF_LOG_INFO("FILTER_TYPE =        %d", preset[idx_prst].FILTER_TYPE); 
           NRF_LOG_INFO("NAME =               %s", preset[idx_prst].NAME); 
         #endif
@@ -546,7 +553,8 @@ void save_preset2flash(uint8_t idx_prst)
     preset_32[idx_prst].COLOR           = preset[idx_prst].COLOR;
     preset_32[idx_prst].HIGH_VOYEL      = preset[idx_prst].HIGH_VOYEL;
     preset_32[idx_prst].LOW_VOYEL       = preset[idx_prst].LOW_VOYEL;
-    preset_32[idx_prst].MIX_DRY_WET     = preset[idx_prst].MIX_DRY_WET;
+    preset_32[idx_prst].MIX_DRY_WET1    = preset[idx_prst].MIX_DRY_WET1;
+    preset_32[idx_prst].MIX_DRY_WET2    = preset[idx_prst].MIX_DRY_WET2;
     preset_32[idx_prst].FILTER_TYPE     = preset[idx_prst].FILTER_TYPE;
     strcpy(preset_32[idx_prst].NAME,      "");
     strcpy(preset_32[idx_prst].NAME,      preset[idx_prst].NAME);
@@ -568,7 +576,8 @@ void save_preset2flash(uint8_t idx_prst)
       NRF_LOG_INFO("COLOR =              %d", preset_32[idx_prst].COLOR);
       NRF_LOG_INFO("HIGH_VOYEL =         %d", preset_32[idx_prst].HIGH_VOYEL); 
       NRF_LOG_INFO("LOW_VOYEL =          %d", preset_32[idx_prst].LOW_VOYEL);
-      NRF_LOG_INFO("MIX_DRY_WET =        %d", preset_32[idx_prst].MIX_DRY_WET); 
+      NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset_32[idx_prst].MIX_DRY_WET1); 
+      NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset_32[idx_prst].MIX_DRY_WET2); 
       NRF_LOG_INFO("FILTER_TYPE =        %d", preset_32[idx_prst].FILTER_TYPE); 
       NRF_LOG_INFO("NAME =               %s", preset_32[idx_prst].NAME); 
     #endif
