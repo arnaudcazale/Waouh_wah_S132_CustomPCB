@@ -983,7 +983,7 @@ static void advertising_init(void)
     init.config.ble_adv_fast_enabled               = true;
     init.config.ble_adv_fast_interval              = APP_ADV_FAST_INTERVAL;
     init.config.ble_adv_fast_timeout               = APP_ADV_FAST_DURATION;
-    init.config.ble_adv_slow_enabled               = true;
+    init.config.ble_adv_slow_enabled               = false;
     init.config.ble_adv_slow_interval              = APP_ADV_SLOW_INTERVAL;
     init.config.ble_adv_slow_timeout               = APP_ADV_SLOW_DURATION;
 

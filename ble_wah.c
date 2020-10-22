@@ -1570,8 +1570,6 @@ uint32_t check_mode(uint8_t mode)
 //          auto_data_up = true; 
 //      }
 
-
-
 /**@brief Function 
  *
  */
