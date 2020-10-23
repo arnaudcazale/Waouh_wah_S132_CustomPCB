@@ -1501,8 +1501,8 @@ void set_filter_type(uint8_t filter_type)
     switch(filter_type)
     {
       case 0:
-          nrf_drv_gpiote_out_set(F_SELECT_A);
-          nrf_drv_gpiote_out_set(F_SELECT_B);
+          nrf_drv_gpiote_out_clear(F_SELECT_A);
+          nrf_drv_gpiote_out_clear(F_SELECT_B);
         break;
       
       case 1:
