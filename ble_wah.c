@@ -1432,6 +1432,8 @@ void update_preset(int data)
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
 
+
+
           break;
         case TALKBOX:
 
@@ -1500,22 +1502,22 @@ void set_filter_type(uint8_t filter_type)
 {
     switch(filter_type)
     {
-      case 0:
+      case BAND_PASS:
           nrf_drv_gpiote_out_clear(F_SELECT_A);
           nrf_drv_gpiote_out_clear(F_SELECT_B);
         break;
       
-      case 1:
+      case LOW_PASS:
           nrf_drv_gpiote_out_clear(F_SELECT_A);
           nrf_drv_gpiote_out_set(F_SELECT_B);
         break;
 
-      case 2:
+      case HIGH_PASS:
           nrf_drv_gpiote_out_set(F_SELECT_A);
           nrf_drv_gpiote_out_clear(F_SELECT_B);
         break;
 
-      case 3:
+      case NOTCH:
           nrf_drv_gpiote_out_set(F_SELECT_A);
           nrf_drv_gpiote_out_set(F_SELECT_B);
         break;
@@ -1590,12 +1592,27 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
     switch (event_type)
     {
         case NRF_TIMER_EVENT_COMPARE0:
+
+            //Test
+            if(preset[m_preset_selection_value].FILTER_TYPE == NOTCH)
+            {
+              if(auto_data_up)
+              {
+                  update_preset(0);
+                  auto_data_up = false;
+              }else
+              {
+                  update_preset(63);
+                  auto_data_up = true;
+              }
+              break;
+            }
             
             if(preset[m_preset_selection_value].MODE == AUTO_WAH_MODE)
             {
 //                err_code = app_sched_event_put(0, 0, auto_wah_scheduler_event_handler);
 //                APP_ERROR_CHECK(err_code);
-                  
+
                   uint8_t max_value, min_value;
 
                   if(auto_data_up)

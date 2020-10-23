@@ -121,12 +121,13 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 
         if( ( new_data < (m_data - MARGE_DATA_IN) ) || ( new_data > (m_data + MARGE_DATA_IN) ))
         {
-          //NRF_LOG_INFO("saadc_data = %d", new_data);
+          NRF_LOG_INFO("saadc_data = %d", new_data);
           update_preset(new_data);
           if(m_wah_service->is_pedal_value_notif_enabled)
           {
             pedal_data_value_update(m_wah_service, new_data);
           }
+
         }
 
         m_data = new_data;
