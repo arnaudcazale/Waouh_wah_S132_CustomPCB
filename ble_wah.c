@@ -1300,7 +1300,8 @@ void config_preset()
 
     //Set GAIN
     uint8_t data_G = 128;
-    drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_4, &data_G);
+    err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_4, &data_G);
+    APP_ERROR_CHECK(err_code);
 
     //Set Filter type
     set_filter_type(preset[m_preset_selection_value].FILTER_TYPE);
@@ -1621,25 +1622,25 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
 //                err_code = app_sched_event_put(0, 0, auto_level_scheduler_event_handler);
 //                APP_ERROR_CHECK(err_code);
 
-            if(auto_data_up)
-            {
-                cpt_timer++;
-                update_preset(cpt_timer);
-                if(cpt_timer == preset[m_preset_selection_value].LV2)
-                {
-                    auto_data_up = false;
-                }
-            }else
-            {
-                cpt_timer--;
-                update_preset(cpt_timer);
-                if(cpt_timer == preset[m_preset_selection_value].LV1)
-                {
-                    auto_data_up = true;
-                }
-            }
-                  
+                  if(auto_data_up)
+                  {
+                      cpt_timer++;
+                      update_preset(cpt_timer);
+                      if(cpt_timer == preset[m_preset_selection_value].LV2)
+                      {
+                          auto_data_up = false;
+                      }
+                  }else
+                  {
+                      cpt_timer--;
+                      update_preset(cpt_timer);
+                      if(cpt_timer == preset[m_preset_selection_value].LV1)
+                      {
+                          auto_data_up = true;
+                      }
                   }
+                  
+            }
 
                   break;
 
@@ -1710,7 +1711,7 @@ void timer_start()
     }
     
     time_ticks = nrf_drv_timer_us_to_ticks(&TIMER, time_us); 
-    NRF_LOG_INFO("time_ticks %d", time_ticks);
+    //NRF_LOG_INFO("time_ticks %d", time_ticks);
 
     nrf_drv_timer_extended_compare(
          &TIMER, NRF_TIMER_CC_CHANNEL0, time_ticks, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
