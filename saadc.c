@@ -1,5 +1,6 @@
 #include "saadc.h"
 
+static uint8_t               m_input;
 static nrf_saadc_value_t     m_buffer_pool[2][SAMPLES_IN_BUFFER];
 static nrf_saadc_value_t     m_adc_buffer;
 static nrf_ppi_channel_t     m_ppi_channel;
@@ -32,7 +33,8 @@ void saadc_init()
     ret_code_t err_code;
 
     nrf_saadc_channel_config_t channel_config =
-    NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(NRF_SAADC_INPUT_AIN1);
+    NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(m_input);
+    NRF_LOG_INFO("SAADC_INPUT = %d", m_input);
 
     err_code = nrf_drv_saadc_init(NULL, saadc_callback);
     APP_ERROR_CHECK(err_code);
@@ -153,10 +155,11 @@ void saadc_sampling_event_disable(void)
     APP_ERROR_CHECK(err_code);
 }
 
-void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time)
+void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time, uint8_t input)
 {
     m_wah_service =   wah_service; 
     m_sampling_time = sampling_time;
+    m_input = input;
     saadc_init();
     saadc_sampling_event_init();
     saadc_sampling_event_enable();

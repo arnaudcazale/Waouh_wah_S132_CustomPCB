@@ -97,7 +97,7 @@
 //#define DEBUG
 
 
-#define DEVICE_NAME                     "Waouh_wah"                       /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "Waouh_wah"                             /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "NordicSemiconductor"                   /**< Manufacturer. Will be passed to Device Information Service. */
 #define APP_ADV_INTERVAL                300                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 
@@ -1108,7 +1108,14 @@ static void advertising_start(bool erase_bonds)
 //
 //    //Set MIX to 0 (FULL FILTER)
 //    drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data);
-//}
+
+
+/**@brief Function for init GPIO output/input
+ */
+void WAH_EXT_FSW_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+    NRF_LOG_INFO("Rising edge on WAH_EXT_FSW pin");
+}
 
 
 /**@brief Function for init GPIO output/input
@@ -1121,6 +1128,8 @@ static void gpio_init(void)
     APP_ERROR_CHECK(err_code);
 
     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
+
+    nrf_drv_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_LOTOHI(false);
 
     err_code = nrf_drv_gpiote_out_init(ACTIVATE, &out_config);
     APP_ERROR_CHECK(err_code);
@@ -1138,6 +1147,9 @@ static void gpio_init(void)
     APP_ERROR_CHECK(err_code);
 
     err_code = nrf_drv_gpiote_out_init(IN_IMPEDANCE, &out_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = nrf_drv_gpiote_in_init(WAH_EXT_FSW, &in_config, WAH_EXT_FSW_handler);
     APP_ERROR_CHECK(err_code);
 
     //default_config_GPIO_values();
@@ -1198,7 +1210,6 @@ void preset_init()
 }
 
 
-
 /**@brief Function for application main entry.
  */
 void pwm_init()
@@ -1248,6 +1259,7 @@ void pwm_init()
  */
 
 int main(void)
+
 
 
 

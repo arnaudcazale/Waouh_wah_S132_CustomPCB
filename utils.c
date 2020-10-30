@@ -180,6 +180,7 @@ ret_code_t write_factory_presets()
     preset_32[0].MIX_DRY_WET1    = 0;
     preset_32[0].MIX_DRY_WET2    = 0;
     preset_32[0].FILTER_TYPE     = LOW_PASS;
+    preset_32[0].SOURCE          = EXP;
     strcpy(preset_32[0].NAME, "PRESET_1");
 
     //flash_writing = true;
@@ -203,6 +204,7 @@ ret_code_t write_factory_presets()
     preset_32[1].MIX_DRY_WET1    = 0;
     preset_32[1].MIX_DRY_WET2    = 0;
     preset_32[1].FILTER_TYPE     = LOW_PASS;
+    preset_32[1].SOURCE          = EXP;
     strcpy(preset_32[1].NAME, "PRESET_2");
 
     //flash_writing = true;
@@ -226,6 +228,7 @@ ret_code_t write_factory_presets()
     preset_32[2].MIX_DRY_WET1    = 0;
     preset_32[2].MIX_DRY_WET2    = 0;
     preset_32[2].FILTER_TYPE     = LOW_PASS;
+    preset_32[2].SOURCE          = EXP;
     strcpy(preset_32[2].NAME, "PRESET_3");
 
     //flash_writing = true;
@@ -249,15 +252,16 @@ ret_code_t write_factory_presets()
     preset_32[3].MIX_DRY_WET1    = 0;
     preset_32[3].MIX_DRY_WET2    = 0;
     preset_32[3].FILTER_TYPE     = LOW_PASS;
+    preset_32[3].SOURCE          = EXP;
     strcpy(preset_32[3].NAME, "PRESET_4");
 
     //flash_writing = true;
     write_preset_config(3);
     //while(flash_writing);
 
-    calibration_32.STATUS   = NONE;
-    calibration_32.MAX_DATA = 0;
-    calibration_32.MIN_DATA = 0;
+    calibration_32.STATUS = NONE;
+    calibration_32.DATA = 0;
+    calibration_32.GAIN = 0;
 
     //flash_writing = true;
     write_calibration_config();
@@ -405,6 +409,7 @@ void load_flash_config()
         preset_32[idx_prst].MIX_DRY_WET1    = data->MIX_DRY_WET1;
         preset_32[idx_prst].MIX_DRY_WET2    = data->MIX_DRY_WET2;
         preset_32[idx_prst].FILTER_TYPE     = data->FILTER_TYPE;
+        preset_32[idx_prst].SOURCE          = data->SOURCE;
         strcpy(preset_32[idx_prst].NAME,      data->NAME);
 
         preset[idx_prst].FC1             = preset_32[idx_prst].FC1;
@@ -424,6 +429,7 @@ void load_flash_config()
         preset[idx_prst].MIX_DRY_WET1    = preset_32[idx_prst].MIX_DRY_WET1;
         preset[idx_prst].MIX_DRY_WET2    = preset_32[idx_prst].MIX_DRY_WET2;
         preset[idx_prst].FILTER_TYPE     = preset_32[idx_prst].FILTER_TYPE;
+        preset[idx_prst].SOURCE          = preset_32[idx_prst].SOURCE;
         strcpy(preset[idx_prst].NAME,      preset_32[idx_prst].NAME);
 
         #ifdef DEBUG_PRESET_FLASH
@@ -445,7 +451,8 @@ void load_flash_config()
           NRF_LOG_INFO("LOW_VOYEL =          %d", preset[idx_prst].LOW_VOYEL);
           NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset[idx_prst].MIX_DRY_WET1); 
           NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[idx_prst].MIX_DRY_WET2); 
-          NRF_LOG_INFO("FILTER_TYPE =        %d", preset[idx_prst].FILTER_TYPE); 
+          NRF_LOG_INFO("FILTER_TYPE =        %d", preset[idx_prst].FILTER_TYPE);
+          NRF_LOG_INFO("SOURCE =             %d", preset[idx_prst].SOURCE); 
           NRF_LOG_INFO("NAME =               %s", preset[idx_prst].NAME); 
         #endif
 
@@ -457,19 +464,19 @@ void load_flash_config()
     data_calib = m_fds_read_calibration(FILE_ID_CALIB, RECORD_KEY_CALIB);
 
     calibration_32.STATUS           = data_calib->STATUS;
-    calibration_32.MAX_DATA         = data_calib->MAX_DATA;
-    calibration_32.MIN_DATA         = data_calib->MIN_DATA;
+    calibration_32.DATA             = data_calib->DATA;
+    calibration_32.GAIN             = data_calib->GAIN;
 
     calibration.STATUS              = calibration_32.STATUS;
-    calibration.MAX_DATA            = calibration_32.MAX_DATA;
-    calibration.MIN_DATA            = calibration_32.MIN_DATA;
+    calibration.DATA                = calibration_32.DATA;
+    calibration.GAIN                = calibration_32.GAIN;
 
     #ifdef DEBUG_PRESET
           NRF_LOG_INFO("***************************************");        
           NRF_LOG_INFO("CALIBRATION");
           NRF_LOG_INFO("STATUS =                %d", data_calib->STATUS);
-          NRF_LOG_INFO("MAX_DATA =              %d", data_calib->MAX_DATA);
-          NRF_LOG_INFO("MIN_DATA =              %d", data_calib->MIN_DATA);
+          NRF_LOG_INFO("DATA =                  %d", data_calib->DATA);
+          NRF_LOG_INFO("GAIN =                  %d", data_calib->GAIN);
     #endif
 
 }

@@ -30,7 +30,7 @@ void saadc_sampling_event_init(void);
 void saadc_callback(nrf_drv_saadc_evt_t const *);
 void timer_handler(nrf_timer_event_t event_type, void *);
 void saadc_sampling_event_enable(void);
-void saadc_start(ble_wah_t*, uint8_t);
+void saadc_start(ble_wah_t*, uint8_t, uint8_t);
 
 
 

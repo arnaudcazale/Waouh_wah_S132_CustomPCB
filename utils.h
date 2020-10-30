@@ -48,7 +48,8 @@
 #define INDEX_MIX_DRY_WET1     16
 #define INDEX_MIX_DRY_WET2     17
 #define INDEX_FILTER_TYPE      18
-#define INDEX_NAME             19
+#define INDEX_SOURCE           19
+#define INDEX_NAME             20
 
 #define NAME_MAX_LENGTH        20
 
@@ -65,6 +66,7 @@ enum
     AUTO_WAH_MODE,           
     AUTO_LEVEL_MODE,  
     TALKBOX,
+    TEST,
 };
 
 enum
@@ -111,6 +113,12 @@ enum
     DONE
 };
 
+enum
+{
+    EXP = 2,
+    WAH = 3,
+};
+
 #ifdef __GNUC__
     #ifdef PACKED
         #undef PACKED
@@ -138,6 +146,7 @@ typedef PACKED( struct
     __ALIGN(4) uint8_t                  MIX_DRY_WET1;
     __ALIGN(4) uint8_t                  MIX_DRY_WET2;
     __ALIGN(4) uint8_t                  FILTER_TYPE;
+    __ALIGN(4) uint8_t                  SOURCE;
     __ALIGN(4) char                     NAME[NAME_MAX_LENGTH];
    
 }) preset_config_32_t;
@@ -161,6 +170,7 @@ typedef PACKED( struct
      uint8_t                  MIX_DRY_WET1;
      uint8_t                  MIX_DRY_WET2;
      uint8_t                  FILTER_TYPE;
+     uint8_t                  SOURCE;
      char                     NAME[NAME_MAX_LENGTH];
 
 }) preset_config_8_t;
@@ -168,16 +178,16 @@ typedef PACKED( struct
 typedef PACKED( struct
 {
     __ALIGN(4) uint8_t    STATUS;
-    __ALIGN(4) uint16_t   MIN_DATA;
-    __ALIGN(4) uint16_t   MAX_DATA;
+    __ALIGN(4) uint16_t   DATA;
+    __ALIGN(4) uint8_t    GAIN;
 
 }) calib_config_32_t;
 
 typedef PACKED( struct
 {
     uint8_t    STATUS;
-    uint16_t   MIN_DATA;
-    uint16_t   MAX_DATA;
+    uint16_t   DATA;
+    uint8_t    GAIN;      
 
 }) calib_config_8_t;
 

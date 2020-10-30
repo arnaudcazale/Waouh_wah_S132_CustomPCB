@@ -1184,6 +1184,7 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
     preset[m_preset_selection_value].MIX_DRY_WET1    = data[INDEX_MIX_DRY_WET1];
     preset[m_preset_selection_value].MIX_DRY_WET2    = data[INDEX_MIX_DRY_WET2];
     preset[m_preset_selection_value].FILTER_TYPE     = data[INDEX_FILTER_TYPE];
+    preset[m_preset_selection_value].SOURCE          = data[INDEX_SOURCE];
     strcpy(preset[m_preset_selection_value].NAME,      "");
     strcpy(preset[m_preset_selection_value].NAME,      &data[INDEX_NAME]);
 
@@ -1235,6 +1236,7 @@ void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
               preset[i].MIX_DRY_WET1    = preset[m_preset_selection_value].MIX_DRY_WET1;
               preset[i].MIX_DRY_WET2    = preset[m_preset_selection_value].MIX_DRY_WET2;
               preset[i].FILTER_TYPE     = preset[m_preset_selection_value].FILTER_TYPE;
+              preset[i].SOURCE          = preset[m_preset_selection_value].SOURCE;
   
               save_preset2flash(i);
               //Update Flash contents by sending notification of actual preset
@@ -1432,11 +1434,14 @@ void update_preset(int data)
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
 
-
-
           break;
         case TALKBOX:
 
+          break;
+
+        case TEST:
+            NRF_LOG_INFO("Test mode %d", data);
+            
           break;
 
         default:
@@ -1486,6 +1491,8 @@ void debug_preset (uint8_t m_preset_selection_value)
       NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[m_preset_selection_value].MIX_DRY_WET2); 
       //NRF_LOG_FLUSH();
       NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE); 
+      //NRF_LOG_FLUSH();
+      NRF_LOG_INFO("SOURCE =             %d", preset[m_preset_selection_value].SOURCE); 
       //NRF_LOG_FLUSH();
       NRF_LOG_INFO("NAME =               %s", preset[m_preset_selection_value].NAME); 
       //NRF_LOG_FLUSH();
@@ -1551,13 +1558,16 @@ uint32_t check_mode(uint8_t mode)
     {
         case MANUAL_WAH_MODE:
         case MANUAL_LEVEL_MODE:
-            saadc_start(m_wah_service, SAMPLING_20MS);
+            saadc_start(m_wah_service, SAMPLING_20MS, preset[m_preset_selection_value].SOURCE);
           break;
         case AUTO_WAH_MODE:
         case AUTO_LEVEL_MODE:
             timer_start();
           break;
         case TALKBOX:
+
+          break;
+        case TEST:
 
           break;
 
@@ -1594,19 +1604,19 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
         case NRF_TIMER_EVENT_COMPARE0:
 
             //Test
-            if(preset[m_preset_selection_value].FILTER_TYPE == NOTCH)
-            {
-              if(auto_data_up)
-              {
-                  update_preset(0);
-                  auto_data_up = false;
-              }else
-              {
-                  update_preset(63);
-                  auto_data_up = true;
-              }
-              break;
-            }
+//            if(preset[m_preset_selection_value].FILTER_TYPE == NOTCH)
+//            {
+//              if(auto_data_up)
+//              {
+//                  update_preset(0);
+//                  auto_data_up = false;
+//              }else
+//              {
+//                  update_preset(63);
+//                  auto_data_up = true;
+//              }
+//              break;
+//            }
             
             if(preset[m_preset_selection_value].MODE == AUTO_WAH_MODE)
             {
