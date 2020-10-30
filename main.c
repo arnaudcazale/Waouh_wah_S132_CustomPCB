@@ -64,6 +64,7 @@
 #include "ble_advdata.h"
 #include "ble_advertising.h"
 #include "ble_conn_params.h"
+#include "ble_dis.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
 #include "nrf_sdh_ble.h"
@@ -155,6 +156,25 @@ static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 uint8_t m_preset_selection_value; 
 static uint8_t m_is_on_edit_mode = false;
 
+/**
+ * @defgroup ble_dis_config Configuration for Device Information Service.
+ * @brief Example characteristic values used for Device Information Service. Will be passed to Device Information Service.
+ * @{
+ */
+#define BLE_DIS_MANUFACTURER_NAME       "NordicSemiconductor"                   /**< Manufacturer Name String. */
+#define BLE_DIS_MODEL_NUMBER            "NRF5X"                                 /**< Model Number String. */
+#define BLE_DIS_SERIAL_NUMBER           "T0139836"                              /**< Serial Number String. */
+#define BLE_DIS_HW_REVISION             "2016.42"                               /**< Hardware Revision String. */
+#define BLE_DIS_FW_REVISION             "0.1.2"                                 /**< Firmware Revision String. */
+#define BLE_DIS_SW_REVISION             "1.2.3"                                 /**< Software Revision String. */
+#define BLE_DIS_MANUFACTURER_ID         0x0000000059                            /**< Manufacturer ID for System ID. */
+#define BLE_DIS_OU_ID                   0x123456                                /**< Organizationally unique ID for System ID. */
+#define BLE_DIS_CERT_LIST               {0x00, 0x01, 0x02, 0x03}                /**< IEEE 11073-20601 Regulatory Certification Data List. */
+#define BLE_DIS_VENDOR_ID               0x0059                                  /**< Vendor ID for PnP ID. */
+#define BLE_DIS_PRODUCT_ID              0x0001                                  /**< Product ID for PnP ID. */
+#define BLE_DIS_PRODUCT_VERSION         0x0002                                  /**< Product Version for PnP ID. */
+/** @} */
+
 APP_TIMER_DEF(m_timer_id);
 APP_TIMER_DEF(m_sec_req_timer_id);                                                  /**< Security Request timer. */
 
@@ -166,7 +186,8 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        
 
 static ble_uuid_t m_adv_uuids[] =                                               /**< Universally unique service identifiers. */
 {
-    {WAH_SERVICE_UUID, BLE_UUID_TYPE_VENDOR_BEGIN }
+    {WAH_SERVICE_UUID, BLE_UUID_TYPE_VENDOR_BEGIN}
+    //{BLE_UUID_DEVICE_INFORMATION_SERVICE,   BLE_UUID_TYPE_BLE}
 };
 
 
@@ -551,6 +572,7 @@ static void services_init(void)
         ret_code_t          err_code;
         nrf_ble_qwr_init_t  qwr_init = {0};
         ble_wah_init_t      wah_init;
+        ble_dis_init_t      dis_init;
 
         wah_init.initial_calibration.STATUS = NONE; //To load from flash
 
@@ -560,11 +582,47 @@ static void services_init(void)
         err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
         APP_ERROR_CHECK(err_code);
 
-        // Initialize CUS Service init structure to zero.
+         // Initialize Device Information Service.
+        ble_dis_sys_id_t             sys_id;
+        ble_dis_pnp_id_t             pnp_id;
+        ble_dis_reg_cert_data_list_t cert_list;
+        uint8_t                      cert_list_data[] = BLE_DIS_CERT_LIST;
+
+        memset(&dis_init, 0, sizeof(dis_init));
+
+        ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, BLE_DIS_MANUFACTURER_NAME);
+        ble_srv_ascii_to_utf8(&dis_init.model_num_str, BLE_DIS_MODEL_NUMBER);
+        ble_srv_ascii_to_utf8(&dis_init.serial_num_str, BLE_DIS_SERIAL_NUMBER);
+        ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, BLE_DIS_HW_REVISION);
+        ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, BLE_DIS_FW_REVISION);
+        ble_srv_ascii_to_utf8(&dis_init.sw_rev_str, BLE_DIS_SW_REVISION);
+
+        sys_id.manufacturer_id            = BLE_DIS_MANUFACTURER_ID;
+        sys_id.organizationally_unique_id = BLE_DIS_OU_ID;
+
+        cert_list.p_list   = cert_list_data;
+        cert_list.list_len = sizeof(cert_list_data);
+
+        pnp_id.vendor_id_source = BLE_DIS_VENDOR_ID_SRC_BLUETOOTH_SIG;
+        pnp_id.vendor_id        = BLE_DIS_VENDOR_ID;
+        pnp_id.product_id       = BLE_DIS_PRODUCT_ID;
+        pnp_id.product_version  = BLE_DIS_PRODUCT_VERSION;
+
+        dis_init.p_sys_id             = &sys_id;
+        dis_init.p_reg_cert_data_list = &cert_list;
+        dis_init.p_pnp_id             = &pnp_id;
+
+        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dis_init.dis_attr_md.read_perm);
+        BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&dis_init.dis_attr_md.write_perm);
+
+        err_code = ble_dis_init(&dis_init);
+        APP_ERROR_CHECK(err_code);
+
+         // Initialize CUS Service init structure to zero.
         wah_init.evt_handler                = on_wah_evt;
 
         err_code = ble_wah_init(&m_wah, &wah_init);
-        APP_ERROR_CHECK(err_code); 
+        APP_ERROR_CHECK(err_code);
                
 }
 
@@ -983,9 +1041,11 @@ static void advertising_init(void)
     init.config.ble_adv_fast_enabled               = true;
     init.config.ble_adv_fast_interval              = APP_ADV_FAST_INTERVAL;
     init.config.ble_adv_fast_timeout               = APP_ADV_FAST_DURATION;
-    init.config.ble_adv_slow_enabled               = false;
-    init.config.ble_adv_slow_interval              = APP_ADV_SLOW_INTERVAL;
-    init.config.ble_adv_slow_timeout               = APP_ADV_SLOW_DURATION;
+//    init.config.ble_adv_slow_enabled               = false;
+//    init.config.ble_adv_slow_interval              = APP_ADV_SLOW_INTERVAL;
+//    init.config.ble_adv_slow_timeout               = APP_ADV_SLOW_DURATION;
+
+    //init.config.ble_adv_extended_enabled = true;
 
     init.evt_handler = on_adv_evt;
 
@@ -1128,7 +1188,6 @@ static void gpio_init(void)
     APP_ERROR_CHECK(err_code);
 
     nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-
     nrf_drv_gpiote_in_config_t in_config = NRFX_GPIOTE_CONFIG_IN_SENSE_LOTOHI(false);
 
     err_code = nrf_drv_gpiote_out_init(ACTIVATE, &out_config);
@@ -1151,6 +1210,8 @@ static void gpio_init(void)
 
     err_code = nrf_drv_gpiote_in_init(WAH_EXT_FSW, &in_config, WAH_EXT_FSW_handler);
     APP_ERROR_CHECK(err_code);
+
+    //nrf_gpio_cfg_input(WAH_EXT_FSW, NRF_GPIO_PIN_PULLDOWN); 
 
     //default_config_GPIO_values();
 

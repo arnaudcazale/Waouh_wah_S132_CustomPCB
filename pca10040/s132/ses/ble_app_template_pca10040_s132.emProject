@@ -147,7 +147,9 @@
       <file file_name="../../../../../../components/softdevice/common/nrf_sdh_ble.c" />
       <file file_name="../../../../../../components/softdevice/common/nrf_sdh_soc.c" />
     </folder>
-    <folder Name="nRF_BLE_Services" />
+    <folder Name="nRF_BLE_Services">
+      <file file_name="../../../../../../components/ble/ble_services/ble_dis/ble_dis.c" />
+    </folder>
   </project>
   <configuration
     Name="Release"
