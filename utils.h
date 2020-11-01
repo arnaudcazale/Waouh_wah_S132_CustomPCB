@@ -178,7 +178,8 @@ typedef PACKED( struct
 typedef PACKED( struct
 {
     __ALIGN(4) uint8_t    STATUS;
-    __ALIGN(4) uint16_t   DATA;
+    __ALIGN(4) uint16_t   DATA_HEEL;
+    __ALIGN(4) uint16_t   DATA_TOE;
     __ALIGN(4) uint8_t    GAIN;
 
 }) calib_config_32_t;
@@ -186,7 +187,8 @@ typedef PACKED( struct
 typedef PACKED( struct
 {
     uint8_t    STATUS;
-    uint16_t   DATA;
+    uint16_t   DATA_HEEL;
+    uint16_t   DATA_TOE;
     uint8_t    GAIN;      
 
 }) calib_config_8_t;
@@ -201,6 +203,7 @@ static ret_code_t check_memory(void);
 static ret_code_t write_factory_presets(void);
 static void write_preset_config(uint8_t);
 static void write_calibration_config(void);
+void write_calibration_done(uint8_t, uint16_t, uint16_t, uint8_t);
 static ret_code_t m_fds_find_and_delete(uint16_t, uint16_t);
 static ret_code_t m_fds_write_preset(uint16_t, uint16_t, preset_config_32_t*);
 static ret_code_t m_fds_write_calibration(uint16_t, uint16_t, calib_config_32_t*);

@@ -528,6 +528,15 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
             check_data_received(idx_prst, p_evt->p_data, p_evt->length);
             break;
 
+        case BLE_WAH_EVT_CALIBRATION_RECEIVED:
+            NRF_LOG_INFO("BLE_WAH_EVT_CALIBRATION_RECEIVED");
+            NRF_LOG_HEXDUMP_DEBUG(p_evt->p_data, p_evt->length);
+            uint8_t state = p_evt->p_data[0];
+            uint16_t gain = p_evt->p_data[3];
+            update_calibration(state, gain);
+            break;
+ 
+
         case BLE_WAH_EVT_NOTIF_PRESET_SELECTION:
             NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_PRESET_SELECTION - %d", p_wah_service->is_preset_selection_notif_enabled);
             if(p_wah_service->is_preset_selection_notif_enabled)
@@ -551,6 +560,10 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
 //               
 //            }
             
+            break;
+
+         case BLE_WAH_EVT_NOTIF_CALIBRATION:
+            NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_CALIBRATION - %d", p_wah_service->is_calibration_notif_enabled);
             break;
            
         case BLE_WAH_EVT_CONNECTED:

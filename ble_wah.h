@@ -59,8 +59,10 @@ typedef enum
     BLE_WAH_EVT_PRESET_2_RECEIVED,
     BLE_WAH_EVT_PRESET_3_RECEIVED,
     BLE_WAH_EVT_PRESET_4_RECEIVED,
+    BLE_WAH_EVT_CALIBRATION_RECEIVED,
     BLE_WAH_EVT_NOTIF_PRESET_SELECTION,
     BLE_WAH_EVT_NOTIF_PEDAL_VALUE,
+    BLE_WAH_EVT_NOTIF_CALIBRATION,
     BLE_WAH_EVT_CONFIG_RECEIVED,
     BLE_WAH_EVT_DISCONNECTED,
     BLE_WAH_EVT_CONNECTED
@@ -114,6 +116,7 @@ struct ble_wah_s
     ble_gatts_char_handles_t      calibration_handles;
     bool                          is_preset_selection_notif_enabled;        /**< Variable to indicate if the peer has enabled notification of the characteristic.*/
     bool                          is_pedal_value_notif_enabled; 
+    bool                          is_calibration_notif_enabled;
     bool                          is_preset_1_notif_enabled; 
     bool                          is_preset_2_notif_enabled; 
     bool                          is_preset_3_notif_enabled; 
@@ -167,8 +170,9 @@ static void timer_start_auto_level(uint16_t );
 static void app_timer_periodic_handler_auto_wah(void * p_context);
 static void app_timer_periodic_handler_auto_level(void * p_context);
 static void timer_event_handler(nrf_timer_event_t event_type, void* p_context);
-void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size);
-void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
+//void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size);
+//void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
+void update_calibration(uint8_t state, uint8_t gain);
 
 
 

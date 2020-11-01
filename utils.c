@@ -260,7 +260,8 @@ ret_code_t write_factory_presets()
     //while(flash_writing);
 
     calibration_32.STATUS = NONE;
-    calibration_32.DATA = 0;
+    calibration_32.DATA_HEEL = 0;
+    calibration_32.DATA_TOE = 1024;
     calibration_32.GAIN = 0;
 
     //flash_writing = true;
@@ -291,6 +292,27 @@ void write_calibration_config()
    uint32_t err_code;
    err_code = m_fds_write_calibration(FILE_ID_CALIB, RECORD_KEY_CALIB, &calibration_32);
    APP_ERROR_CHECK(err_code);
+}
+
+/*******************************************************************************
+
+*******************************************************************************/
+void write_calibration_done(uint8_t status, uint16_t data_heel, uint16_t data_toe, uint8_t gain)
+{
+    calibration_32.STATUS    = status;
+    calibration_32.DATA_HEEL = data_heel;
+    calibration_32.DATA_TOE  = data_toe;
+    calibration_32.GAIN      = gain;
+
+    //Load into runtile structure
+    calibration.STATUS              = calibration_32.STATUS;
+    calibration.DATA_HEEL           = calibration_32.DATA_HEEL;
+    calibration.DATA_TOE            = calibration_32.DATA_TOE;
+    calibration.GAIN                = calibration_32.GAIN;
+
+    //flash_writing = true;
+    write_calibration_config();
+    //while(flash_writing);
 }
 
 /*******************************************************************************
@@ -464,18 +486,21 @@ void load_flash_config()
     data_calib = m_fds_read_calibration(FILE_ID_CALIB, RECORD_KEY_CALIB);
 
     calibration_32.STATUS           = data_calib->STATUS;
-    calibration_32.DATA             = data_calib->DATA;
+    calibration_32.DATA_HEEL        = data_calib->DATA_HEEL;
+    calibration_32.DATA_TOE         = data_calib->DATA_TOE;
     calibration_32.GAIN             = data_calib->GAIN;
 
     calibration.STATUS              = calibration_32.STATUS;
-    calibration.DATA                = calibration_32.DATA;
+    calibration.DATA_HEEL           = calibration_32.DATA_HEEL;
+    calibration.DATA_TOE            = calibration_32.DATA_TOE;
     calibration.GAIN                = calibration_32.GAIN;
 
     #ifdef DEBUG_PRESET
           NRF_LOG_INFO("***************************************");        
           NRF_LOG_INFO("CALIBRATION");
           NRF_LOG_INFO("STATUS =                %d", data_calib->STATUS);
-          NRF_LOG_INFO("DATA =                  %d", data_calib->DATA);
+          NRF_LOG_INFO("DATA_HEEL =             %d", data_calib->DATA_HEEL);
+          NRF_LOG_INFO("DATA_TOE =              %d", data_calib->DATA_TOE);
           NRF_LOG_INFO("GAIN =                  %d", data_calib->GAIN);
     #endif
 

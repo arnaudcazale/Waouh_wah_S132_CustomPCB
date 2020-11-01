@@ -16,6 +16,7 @@ static ble_wah_t *                     m_wah_service;
 static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
 static uint8_t                         auto_data_up;
+static uint16_t m_data_heel, m_data_toe;
 
 //APP_TIMER_DEF(m_timer_auto_wah);
 //APP_TIMER_DEF(m_timer_auto_level);
@@ -35,6 +36,7 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
     m_wah_service = p_wah;
     p_wah->is_preset_selection_notif_enabled        = false;
     p_wah->is_pedal_value_notif_enabled             = false;
+    p_wah->is_calibration_notif_enabled             = false;
     p_wah->is_preset_1_notif_enabled                = false;
     p_wah->is_preset_2_notif_enabled                = false;
     p_wah->is_preset_3_notif_enabled                = false;
@@ -244,6 +246,27 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
         }
     }
 
+    // If PEDAL_VALUE notification enabled/disabled written
+    if ((p_evt_write->handle == p_wah->calibration_handles.cccd_handle)
+        && (p_evt_write->len == 2)
+       )
+    {
+        bool notif_enabled;
+        notif_enabled = ble_srv_is_notification_enabled(p_evt_write->data);
+
+        if (p_wah->is_calibration_notif_enabled != notif_enabled)
+        {
+            p_wah->is_calibration_notif_enabled = notif_enabled;
+
+            if (p_wah->evt_handler != NULL)
+            {
+                evt.evt_type = BLE_WAH_EVT_NOTIF_CALIBRATION;
+                p_wah->evt_handler(p_wah, &evt);
+                
+            }
+        }
+    }
+
     // If PRESET 1 data written
     if (p_evt_write->handle == p_wah->preset_1_handles.value_handle)
     {
@@ -278,6 +301,16 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
     if (p_evt_write->handle == p_wah->preset_4_handles.value_handle)
     {
         evt.evt_type = BLE_WAH_EVT_PRESET_4_RECEIVED;
+        evt.p_data = p_evt_write->data;
+        evt.length = p_evt_write->len;
+        // Call the application event handler.
+        p_wah->evt_handler(p_wah, &evt);
+    }
+
+    // If PRESET 1 data written
+    if (p_evt_write->handle == p_wah->calibration_handles.value_handle)
+    {
+        evt.evt_type = BLE_WAH_EVT_CALIBRATION_RECEIVED;
         evt.p_data = p_evt_write->data;
         evt.length = p_evt_write->len;
         // Call the application event handler.
@@ -753,7 +786,6 @@ static uint32_t preset_4_char_add(ble_wah_t * p_wah, const ble_wah_init_t * p_wa
     attr_md.vloc       = BLE_GATTS_VLOC_STACK;
     attr_md.rd_auth    = 0;
     attr_md.wr_auth    = 0;
-
     attr_md.vlen       = 0;
 
     memset(&attr_char_value, 0, sizeof(attr_char_value));
@@ -787,13 +819,24 @@ static uint32_t calibration_char_add(ble_wah_t * p_wah, const ble_wah_init_t * p
 {
     uint32_t                err_code;
     ble_gatts_char_md_t     char_md;
+    ble_gatts_attr_md_t     cccd_md;
     ble_gatts_attr_t        attr_char_value;
     ble_uuid_t              ble_uuid;
     ble_gatts_attr_md_t     attr_md;
     //ble_wah_calib_config_t  data = p_wah_init->initial_calibration;
 
+    // Add Custom Value characteristic
+    memset(&cccd_md, 0, sizeof(cccd_md));
+
+    //  Read  operation on cccd should be possible without authentication.
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&cccd_md.write_perm);
+  
+    cccd_md.vloc       = BLE_GATTS_VLOC_STACK;
+
     memset(&char_md, 0, sizeof(char_md));
 
+    char_md.char_props.notify        = 1;
     char_md.char_props.read          = 1;
     char_md.char_props.write         = 1;
     char_md.char_props.write_wo_resp = 0;
@@ -1744,6 +1787,37 @@ void timer_start()
          &TIMER, NRF_TIMER_CC_CHANNEL0, time_ticks, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
 
     nrf_drv_timer_enable(&TIMER);
+
+}
+
+void update_calibration(uint8_t state, uint8_t gain)
+{
+    NRF_LOG_INFO("calibration state = %d", state);
+    NRF_LOG_INFO("calibration gain = %d", gain);
+    
+
+    switch(state)
+    {
+        case GO_DOWN:
+          reset_config_preset();
+          saadc_start(m_wah_service, SAMPLING_20MS, EXP); //WAH
+          break;
+
+        case GO_UP:
+          m_data_heel = get_saadc_data();
+          break;
+
+        case DONE:
+          m_data_toe = get_saadc_data();
+          reset_config_preset();
+          NRF_LOG_INFO("data_heel get = %d", m_data_heel);
+          NRF_LOG_INFO("data_toe get = %d", m_data_toe);
+          write_calibration_done(state, m_data_heel, m_data_toe, gain);
+          break;
+
+        default:
+          break;
+    }
 
 }
 

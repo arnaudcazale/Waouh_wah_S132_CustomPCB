@@ -129,7 +129,6 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
           {
             pedal_data_value_update(m_wah_service, new_data);
           }
-
         }
 
         m_data = new_data;
@@ -139,6 +138,11 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 void timer_handler(nrf_timer_event_t event_type, void * p_context)
 {
 
+}
+
+uint16_t get_saadc_data(void)
+{
+    return m_data;
 }
 
 void saadc_sampling_event_enable(void)
