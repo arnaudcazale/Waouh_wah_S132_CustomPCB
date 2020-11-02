@@ -17,6 +17,7 @@ static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
 static uint8_t                         auto_data_up;
 static uint16_t m_data_heel, m_data_toe;
+static bool trigger_up, trigger_down = false;
 
 //APP_TIMER_DEF(m_timer_auto_wah);
 //APP_TIMER_DEF(m_timer_auto_level);
@@ -1487,12 +1488,30 @@ void update_preset(int data)
           break;
 
         case TEST:
-            if(data > 5)
+            if( (data > 5) && !trigger_up)
             {
+                trigger_up = true;
+                NRF_LOG_INFO("trigger_up");
+                
+                for(int i = 63; i > 0; i-=4)
+                {
+                  //NRF_LOG_INFO("i = %d", i);
+                  //Set MIX_DRY_WET TO FULL WET
+                  data_M = i;
+                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+                  APP_ERROR_CHECK(err_code);
+                  nrf_delay_ms(1);
+                }
+
                 //Set MIX_DRY_WET TO FULL WET
                 data_M = 0;
                 err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
                 APP_ERROR_CHECK(err_code);
+            }
+          
+            if((data > 5) && trigger_up)
+            {
+                trigger_down = false;
 
                 //Set F
                 data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
@@ -1511,12 +1530,33 @@ void update_preset(int data)
                 err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
                 APP_ERROR_CHECK(err_code);
 
-            }else 
+            }
+
+            if((data < 5) && !trigger_down)
             {
-                //Set MIX_DRY_WET TO FULL DRY
+                trigger_down = true;
+                NRF_LOG_INFO("trigger_down");
+
+                for(int i = 0; i < 64; i+=4)
+                {
+                  //NRF_LOG_INFO("i = %d", i);
+                  //Set MIX_DRY_WET TO FULL WET
+                  data_M = i;
+                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+                  APP_ERROR_CHECK(err_code);
+                  nrf_delay_ms(1);
+                }
+
+                //Set MIX_DRY_WET TO FULL WET
                 data_M = 63;
                 err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
                 APP_ERROR_CHECK(err_code);
+              
+            }
+
+            if((data < 5) && trigger_down)
+            {
+                trigger_up = false;
             }
             
           break;
