@@ -1514,7 +1514,7 @@ void update_preset(int data)
             }else 
             {
                 //Set MIX_DRY_WET TO FULL DRY
-                data_M = 0;
+                data_M = 63;
                 err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
                 APP_ERROR_CHECK(err_code);
             }
