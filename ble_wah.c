@@ -82,28 +82,28 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
         return err_code;
     }
 
-        // Add Custom Value characteristic
+    // Add Custom Value characteristic
     err_code = preset_2_char_add(p_wah, p_wah_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-        // Add Custom Value characteristic
+    // Add Custom Value characteristic
     err_code = preset_3_char_add(p_wah, p_wah_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-        // Add Custom Value characteristic
+    // Add Custom Value characteristic
     err_code = preset_4_char_add(p_wah, p_wah_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-            // Add Custom Value characteristic
+    // Add Custom Value characteristic
     err_code = calibration_char_add(p_wah, p_wah_init);
     if (err_code != NRF_SUCCESS)
     {
@@ -1235,12 +1235,16 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
     if(preset[m_preset_selection_value].STATUS == PRESET_SAVE_STATUS)
     {
         save_preset2flash(m_preset_selection_value);
-        //Update Flash contents by sending notification of actual preset
-        send_notif(m_preset_selection_value);
-
+        
         //Si un autre preset à le meme nom que celui-ci, il faut aussi le sauver en flash
         check_and_save_same_preset_name(m_preset_selection_value);
 
+        //Update Flash contents by sending notification of all preset (needeed on App side)
+        for(uint8_t i = 0; i < PRESET_NUMBER; i++)
+        {
+          send_notif(i);
+        }
+        
     ///Si bit "MODE" = 0, Command SPI & I2C chips in real time  
     }else if (preset[m_preset_selection_value].STATUS == PRESET_EDIT_STATUS)
     {
