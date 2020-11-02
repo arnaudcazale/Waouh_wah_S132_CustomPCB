@@ -1487,7 +1487,37 @@ void update_preset(int data)
           break;
 
         case TEST:
-            NRF_LOG_INFO("Test mode %d", data);
+            if(data > 5)
+            {
+                //Set MIX_DRY_WET TO FULL WET
+                data_M = 0;
+                err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+                APP_ERROR_CHECK(err_code);
+
+                //Set F
+                data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+                err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+                APP_ERROR_CHECK(err_code);
+                err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
+                APP_ERROR_CHECK(err_code);
+
+                //Set Q
+                data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+                err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+                APP_ERROR_CHECK(err_code);
+
+                //Set LV
+                data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+                err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+                APP_ERROR_CHECK(err_code);
+
+            }else 
+            {
+                //Set MIX_DRY_WET TO FULL DRY
+                data_M = 0;
+                err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+                APP_ERROR_CHECK(err_code);
+            }
             
           break;
 
@@ -1615,7 +1645,7 @@ uint32_t check_mode(uint8_t mode)
 
           break;
         case TEST:
-
+            saadc_start(m_wah_service, SAMPLING_20MS, preset[m_preset_selection_value].SOURCE);
           break;
 
         default:
