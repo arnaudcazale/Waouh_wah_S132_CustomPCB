@@ -1493,15 +1493,15 @@ void update_preset(int data)
                 trigger_up = true;
                 NRF_LOG_INFO("trigger_up");
                 
-                for(int i = 63; i > 0; i-=4)
-                {
+//                for(int i = 63; i > 0; i-=4)
+//                {
                   //NRF_LOG_INFO("i = %d", i);
                   //Set MIX_DRY_WET TO FULL WET
-                  data_M = i;
-                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
-                  APP_ERROR_CHECK(err_code);
-                  nrf_delay_ms(1);
-                }
+//                  data_M = i;
+//                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+//                  APP_ERROR_CHECK(err_code);
+//                  nrf_delay_ms(1);
+//                }
 
                 //Set MIX_DRY_WET TO FULL WET
                 data_M = 0;
@@ -1532,20 +1532,20 @@ void update_preset(int data)
 
             }
 
-            if((data < 5) && !trigger_down)
+            if((data < 2) && !trigger_down)
             {
                 trigger_down = true;
                 NRF_LOG_INFO("trigger_down");
 
-                for(int i = 0; i < 64; i+=4)
-                {
+//                for(int i = 0; i < 64; i+=4)
+//                {
                   //NRF_LOG_INFO("i = %d", i);
                   //Set MIX_DRY_WET TO FULL WET
-                  data_M = i;
-                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
-                  APP_ERROR_CHECK(err_code);
-                  nrf_delay_ms(1);
-                }
+//                  data_M = i;
+//                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+//                  APP_ERROR_CHECK(err_code);
+//                  nrf_delay_ms(1);
+//                }
 
                 //Set MIX_DRY_WET TO FULL WET
                 data_M = 63;
@@ -1554,7 +1554,7 @@ void update_preset(int data)
               
             }
 
-            if((data < 5) && trigger_down)
+            if((data < 2) && trigger_down)
             {
                 trigger_up = false;
             }
