@@ -980,7 +980,11 @@ static void bsp_event_handler(bsp_event_t event)
         //PRESET_FOOTSWITCH PRESS
         case BSP_EVENT_KEY_1:
             //NRF_LOG_INFO("FOOTSWITCH PRESS");
+            nrf_drv_gpiote_out_toggle(ACTIVATE_TEMPO);
+            nrf_delay_ms(1);
             nrf_drv_gpiote_out_toggle(ACTIVATE);
+            nrf_delay_ms(1);
+            nrf_drv_gpiote_out_toggle(ACTIVATE_TEMPO);
             bsp_board_led_invert(BYPASS_LED);
             break;
 
@@ -1206,6 +1210,9 @@ static void gpio_init(void)
     err_code = nrf_drv_gpiote_out_init(ACTIVATE, &out_config);
     APP_ERROR_CHECK(err_code);
 
+    err_code = nrf_drv_gpiote_out_init(ACTIVATE_TEMPO, &out_config);
+    APP_ERROR_CHECK(err_code);
+
     err_code = nrf_drv_gpiote_out_init(GAIN_WAH_CONTROL_A, &out_config);
     APP_ERROR_CHECK(err_code);
 
@@ -1344,6 +1351,8 @@ int main(void)
     // Initialize.
     log_init();
     twi_init();
+
+
     gpio_init();
     timers_init();
     buttons_leds_init(&erase_bonds, &restore_factory);
