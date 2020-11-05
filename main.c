@@ -981,9 +981,9 @@ static void bsp_event_handler(bsp_event_t event)
         case BSP_EVENT_KEY_1:
             //NRF_LOG_INFO("FOOTSWITCH PRESS");
             nrf_drv_gpiote_out_toggle(ACTIVATE_TEMPO);
-            nrf_delay_ms(10);
+            nrf_delay_ms(30);
             nrf_drv_gpiote_out_toggle(ACTIVATE);
-            nrf_delay_ms(10);
+            nrf_delay_ms(30);
             nrf_drv_gpiote_out_toggle(ACTIVATE_TEMPO);
             bsp_board_led_invert(BYPASS_LED);
             break;
