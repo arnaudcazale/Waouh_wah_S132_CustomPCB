@@ -1657,6 +1657,41 @@ void set_filter_type(uint8_t filter_type)
  *
  * 
  */
+void set_gain_wah(uint8_t gain)
+{
+    switch(gain)
+    {
+      case 0:
+          nrf_drv_gpiote_out_clear(GAIN_WAH_CONTROL_A);
+          nrf_drv_gpiote_out_clear(GAIN_WAH_CONTROL_B);
+        break;
+      
+      case 1:
+          nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_A);
+          nrf_drv_gpiote_out_clear(GAIN_WAH_CONTROL_B);
+        break;
+
+      case 2:
+          nrf_drv_gpiote_out_clear(GAIN_WAH_CONTROL_A);
+          nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_B);
+        break;
+
+      case 3:
+          nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_A);
+          nrf_drv_gpiote_out_set(GAIN_WAH_CONTROL_B);
+        break;
+
+      default:
+        break;
+    }
+
+}
+
+
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * 
+ */
 void set_impedance(uint8_t impedance)
 {
     impedance == LOW_Z ? nrf_drv_gpiote_out_clear(IN_IMPEDANCE) : nrf_drv_gpiote_out_set(IN_IMPEDANCE);
@@ -1864,12 +1899,12 @@ void timer_start()
 
 }
 
-void update_calibration(uint8_t state, uint8_t gain)
+void update_calibration(uint8_t state, uint8_t gain, uint16_t data)
 {
     NRF_LOG_INFO("calibration state = %d", state);
+    NRF_LOG_INFO("calibration data = %d", data);
     NRF_LOG_INFO("calibration gain = %d", gain);
     
-
     switch(state)
     {
         case GO_DOWN:
@@ -1878,11 +1913,15 @@ void update_calibration(uint8_t state, uint8_t gain)
           break;
 
         case GO_UP:
-          m_data_heel = get_saadc_data();
+          m_data_heel = data;
+          //Change gain
+          set_gain_wah(gain);
+          //m_data_heel = get_saadc_data();
           break;
 
         case DONE:
-          m_data_toe = get_saadc_data();
+          m_data_toe = data;
+          //m_data_toe = get_saadc_data();
           reset_config_preset();
           NRF_LOG_INFO("data_heel get = %d", m_data_heel);
           NRF_LOG_INFO("data_toe get = %d", m_data_toe);

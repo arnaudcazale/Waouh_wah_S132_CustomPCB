@@ -530,10 +530,11 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
 
         case BLE_WAH_EVT_CALIBRATION_RECEIVED:
             NRF_LOG_INFO("BLE_WAH_EVT_CALIBRATION_RECEIVED");
-            NRF_LOG_HEXDUMP_DEBUG(p_evt->p_data, p_evt->length);
+            //NRF_LOG_HEXDUMP_INFO(p_evt->p_data, p_evt->length);
             uint8_t state = p_evt->p_data[0];
-            uint16_t gain = p_evt->p_data[3];
-            update_calibration(state, gain);
+            uint16_t data = p_evt->p_data[1] | (uint16_t)p_evt->p_data[2] << 8; 
+            uint8_t gain  = p_evt->p_data[3];
+            update_calibration(state, gain, data);
             break;
  
 

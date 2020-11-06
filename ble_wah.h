@@ -165,6 +165,7 @@ static void check_and_save_same_preset_name(uint8_t);
 static void debug_preset(uint8_t);
 static void send_notif(uint8_t);
 static void set_filter_type(uint8_t);
+static void set_gain_wah(uint8_t);
 static void timer_start_auto_wah(uint16_t );
 static void timer_start_auto_level(uint16_t );
 static void app_timer_periodic_handler_auto_wah(void * p_context);
@@ -172,7 +173,7 @@ static void app_timer_periodic_handler_auto_level(void * p_context);
 static void timer_event_handler(nrf_timer_event_t event_type, void* p_context);
 //void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 //void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
-void update_calibration(uint8_t state, uint8_t gain);
+void update_calibration(uint8_t state, uint8_t gain, uint16_t data);
 
 
 
