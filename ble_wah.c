@@ -1909,7 +1909,7 @@ void update_calibration(uint8_t state, uint8_t gain, uint16_t data)
     {
         case GO_DOWN:
           reset_config_preset();
-          saadc_start(m_wah_service, SAMPLING_20MS, EXP); //WAH
+          saadc_start(m_wah_service, SAMPLING_20MS, WAH); //WAH
           break;
 
         case GO_UP:
