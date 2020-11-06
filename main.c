@@ -825,9 +825,13 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("Disconnected.");
-            // LED indication will be changed when advertising starts.
 
+            // LED indication will be changed when advertising starts.
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
+
+            //In case of app shut-down in edit_mode
+            m_is_on_edit_mode = false;
+
             break;
 
         case BLE_GAP_EVT_CONNECTED:

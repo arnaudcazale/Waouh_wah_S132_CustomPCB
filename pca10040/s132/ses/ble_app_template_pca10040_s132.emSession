@@ -78,7 +78,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1346" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1332" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1346" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1347" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1547" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="1523" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="174" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="51" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="304" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="281" codecName="Default"/>
@@ -101,7 +101,7 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="64" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/pca10040.h" selected="0" top="64" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="108" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/nrf_drv_gpiote.h" selected="0" top="60" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="101" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/boards.c" selected="0" top="86" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="100" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/custom_board.h" selected="0" top="96" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="100" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/boards/custom_board.h" selected="0" top="96" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="150" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_timer.c" selected="0" top="138" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="436" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../integration/nrfx/legacy/apply_old_config.h" selected="0" top="422" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="93" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/pwm/app_pwm.h" selected="0" top="80" codecName="Default"/>
