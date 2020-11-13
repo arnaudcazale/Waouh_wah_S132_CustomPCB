@@ -10,6 +10,7 @@ static preset_config_32_t preset_32[PRESET_NUMBER];
 preset_config_8_t preset[PRESET_NUMBER];
 calib_config_32_t calibration_32;
 calib_config_8_t calibration;
+//stroke_response_config_t stroke_response;
 
 /*******************************************************************************
 
@@ -259,10 +260,14 @@ ret_code_t write_factory_presets()
     write_preset_config(3);
     //while(flash_writing);
 
-    calibration_32.STATUS = NONE;
-    calibration_32.DATA_HEEL = 0;
-    calibration_32.DATA_TOE = 1024;
+    calibration_32.EXP_CALIBRATION_STATUS = NONE;
+    calibration_32.WAH_CALIBRATION_STATUS = NONE;
+    calibration_32.DATA = 0;
     calibration_32.GAIN = 0;
+    calibration_32.EXP_CURVE_RESPONSE = RAW;
+    calibration_32.WAH_CURVE_RESPONSE = RAW;
+    calibration_32.DATA_HEEL = 0;
+    calibration_32.DATA_TOE  = 0;
 
     //flash_writing = true;
     write_calibration_config();
@@ -297,19 +302,34 @@ void write_calibration_config()
 /*******************************************************************************
 
 *******************************************************************************/
-void write_calibration_done(uint8_t status, uint16_t data_heel, uint16_t data_toe, uint8_t gain)
+void write_calibration_done_wah(uint8_t wah_status, uint16_t data_heel, uint16_t data_toe, uint8_t gain)
 {
-    calibration_32.STATUS    = status;
-    calibration_32.DATA_HEEL = data_heel;
-    calibration_32.DATA_TOE  = data_toe;
-    calibration_32.GAIN      = gain;
+    calibration_32.WAH_CALIBRATION_STATUS    = wah_status;
+    calibration_32.DATA_HEEL                 = data_heel;
+    calibration_32.DATA_TOE                  = data_toe;
+    calibration_32.GAIN                      = gain;
 
-    //Load into runtile structure
-    calibration.STATUS              = calibration_32.STATUS;
-    calibration.DATA_HEEL           = calibration_32.DATA_HEEL;
-    calibration.DATA_TOE            = calibration_32.DATA_TOE;
-    calibration.GAIN                = calibration_32.GAIN;
+    //Load into runtime structure
+    calibration.WAH_CALIBRATION_STATUS              = calibration_32.WAH_CALIBRATION_STATUS;
+    calibration.DATA_HEEL                           = calibration_32.DATA_HEEL;
+    calibration.DATA_TOE                            = calibration_32.DATA_TOE;
+    calibration.GAIN                                = calibration_32.GAIN;
 
+    //flash_writing = true;
+    write_calibration_config();
+    //while(flash_writing);
+}
+
+/*******************************************************************************
+
+*******************************************************************************/
+void write_calibration_done_exp(uint8_t exp_status)
+{
+    calibration_32.EXP_CALIBRATION_STATUS    = exp_status;
+   
+    //Load into runtime structure
+    calibration.EXP_CALIBRATION_STATUS              = calibration_32.EXP_CALIBRATION_STATUS;
+  
     //flash_writing = true;
     write_calibration_config();
     //while(flash_writing);
@@ -485,23 +505,38 @@ void load_flash_config()
 
     data_calib = m_fds_read_calibration(FILE_ID_CALIB, RECORD_KEY_CALIB);
 
-    calibration_32.STATUS           = data_calib->STATUS;
-    calibration_32.DATA_HEEL        = data_calib->DATA_HEEL;
-    calibration_32.DATA_TOE         = data_calib->DATA_TOE;
-    calibration_32.GAIN             = data_calib->GAIN;
+    calibration_32.EXP_CALIBRATION_STATUS           = data_calib->EXP_CALIBRATION_STATUS;
+    calibration_32.WAH_CALIBRATION_STATUS           = data_calib->WAH_CALIBRATION_STATUS;
+    calibration_32.DATA                             = data_calib->DATA;
+    calibration_32.GAIN                             = data_calib->GAIN;
+    calibration_32.EXP_CURVE_RESPONSE               = data_calib->EXP_CURVE_RESPONSE;
+    calibration_32.WAH_CURVE_RESPONSE               = data_calib->WAH_CURVE_RESPONSE;
+    calibration_32.SOURCE                           = data_calib->SOURCE;
+    calibration_32.DATA_HEEL                        = data_calib->DATA_HEEL;
+    calibration_32.DATA_TOE                         = data_calib->DATA_TOE;
 
-    calibration.STATUS              = calibration_32.STATUS;
-    calibration.DATA_HEEL           = calibration_32.DATA_HEEL;
-    calibration.DATA_TOE            = calibration_32.DATA_TOE;
-    calibration.GAIN                = calibration_32.GAIN;
+    calibration.EXP_CALIBRATION_STATUS              = calibration_32.EXP_CALIBRATION_STATUS;
+    calibration.WAH_CALIBRATION_STATUS              = calibration_32.WAH_CALIBRATION_STATUS;
+    calibration.DATA                                = calibration_32.DATA;
+    calibration.GAIN                                = calibration_32.GAIN;
+    calibration.EXP_CURVE_RESPONSE                  = calibration_32.EXP_CURVE_RESPONSE;
+    calibration.WAH_CURVE_RESPONSE                  = calibration_32.WAH_CURVE_RESPONSE;
+    calibration.SOURCE                              = calibration_32.SOURCE;
+    calibration.DATA_HEEL                           = calibration_32.DATA_HEEL;
+    calibration.DATA_TOE                            = calibration_32.DATA_TOE;
 
     #ifdef DEBUG_PRESET
           NRF_LOG_INFO("***************************************");        
           NRF_LOG_INFO("CALIBRATION");
-          NRF_LOG_INFO("STATUS =                %d", data_calib->STATUS);
-          NRF_LOG_INFO("DATA_HEEL =             %d", data_calib->DATA_HEEL);
-          NRF_LOG_INFO("DATA_TOE =              %d", data_calib->DATA_TOE);
-          NRF_LOG_INFO("GAIN =                  %d", data_calib->GAIN);
+          NRF_LOG_INFO("EXP_CALIBRATION_STATUS =                %d", data_calib->EXP_CALIBRATION_STATUS);
+          NRF_LOG_INFO("WAH_CALIBRATION_STATUS =                %d", data_calib->WAH_CALIBRATION_STATUS);
+          NRF_LOG_INFO("DATA =                                  %d", data_calib->DATA);
+          NRF_LOG_INFO("GAIN =                                  %d", data_calib->GAIN);
+          NRF_LOG_INFO("EXP_CURVE_RESPONSE =                    %d", data_calib->EXP_CURVE_RESPONSE);
+          NRF_LOG_INFO("WAH_CURVE_RESPONSE =                    %d", data_calib->WAH_CURVE_RESPONSE);
+          NRF_LOG_INFO("SOURCE =                                %d", data_calib->SOURCE);
+          NRF_LOG_INFO("DATA_HEEL =                             %d", data_calib->DATA_HEEL);
+          NRF_LOG_INFO("DATA_TOE =                              %d", data_calib->DATA_TOE);
     #endif
 
 }
@@ -619,8 +654,44 @@ void save_preset2flash(uint8_t idx_prst)
     //while(!flash_writing);
 }
 
+/*******************************************************************************
+
+*******************************************************************************/
 long map(long data, long in_min, long in_max, long out_min, long out_max)
 {
     return (data - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+/*******************************************************************************
+
+*******************************************************************************/
+//float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+//{
+// return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+//}
+
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+ return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/*******************************************************************************
+
+*******************************************************************************/
+float FmultiMap(float val, float * _in, float * _out, uint8_t size)
+{
+  // take care the value is within range
+  // val = constrain(val, _in[0], _in[size-1]);
+  if (val <= _in[0]) return _out[0];
+  if (val >= _in[size-1]) return _out[size-1];
+
+  // search right interval
+  uint8_t pos = 1;  // _in[0] allready tested
+  while(val > _in[pos]) pos++;
+
+  // this will handle all exact "points" in the _in array
+  if (val == _in[pos]) return _out[pos];
+
+  // interpolate in the right segment for the rest
+  return (val - _in[pos-1]) * (_out[pos] - _out[pos-1]) / (_in[pos] - _in[pos-1]) + _out[pos-1];
+}

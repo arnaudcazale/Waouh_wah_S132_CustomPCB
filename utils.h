@@ -11,6 +11,7 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_delay.h"
 #include "ble_wah.h"
+#include "stroke.h"
 
 
 #define RECORD_KEY_PRST        0x2222
@@ -110,7 +111,8 @@ enum
     NONE,
     GO_DOWN,
     GO_UP,
-    DONE
+    DONE,
+    RESPONSE_TYPE
 };
 
 enum
@@ -177,22 +179,31 @@ typedef PACKED( struct
 
 typedef PACKED( struct
 {
-    __ALIGN(4) uint8_t    STATUS;
+    __ALIGN(4) uint8_t    EXP_CALIBRATION_STATUS;
+    __ALIGN(4) uint16_t   WAH_CALIBRATION_STATUS;
+    __ALIGN(4) uint16_t   DATA;
+    __ALIGN(4) uint8_t    GAIN;
+    __ALIGN(4) uint8_t    EXP_CURVE_RESPONSE;
+    __ALIGN(4) uint16_t   WAH_CURVE_RESPONSE;
+    __ALIGN(4) uint16_t   SOURCE;
     __ALIGN(4) uint16_t   DATA_HEEL;
     __ALIGN(4) uint16_t   DATA_TOE;
-    __ALIGN(4) uint8_t    GAIN;
 
 }) calib_config_32_t;
 
 typedef PACKED( struct
 {
-    uint8_t    STATUS;
-    uint16_t   DATA_HEEL;
-    uint16_t   DATA_TOE;
-    uint8_t    GAIN;      
+    uint8_t            EXP_CALIBRATION_STATUS;
+    uint8_t            WAH_CALIBRATION_STATUS;
+    uint16_t           DATA;
+    uint8_t            GAIN;    
+    curve_response_t   EXP_CURVE_RESPONSE;    
+    curve_response_t   WAH_CURVE_RESPONSE;  
+    uint8_t            SOURCE;
+    uint16_t           DATA_HEEL;
+    uint16_t           DATA_TOE;
 
 }) calib_config_8_t;
-
 
 void update_led(uint8_t led);
 
@@ -203,7 +214,8 @@ static ret_code_t check_memory(void);
 static ret_code_t write_factory_presets(void);
 static void write_preset_config(uint8_t);
 static void write_calibration_config(void);
-void write_calibration_done(uint8_t, uint16_t, uint16_t, uint8_t);
+void write_calibration_done_wah(uint8_t, uint16_t, uint16_t, uint8_t);
+void write_calibration_done_exp(uint8_t);
 static ret_code_t m_fds_find_and_delete(uint16_t, uint16_t);
 static ret_code_t m_fds_write_preset(uint16_t, uint16_t, preset_config_32_t*);
 static ret_code_t m_fds_write_calibration(uint16_t, uint16_t, calib_config_32_t*);
@@ -213,6 +225,8 @@ calib_config_32_t *  m_fds_read_calibration(uint16_t, uint16_t);
 void convert_to_byte_format(void);
 void save_preset2flash(uint8_t);
 long map(long, long, long, long, long);
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max);
+float FmultiMap(float val, float * _in, float * _out, uint8_t size);
 
 
 

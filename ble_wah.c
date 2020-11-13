@@ -16,8 +16,8 @@ static ble_wah_t *                     m_wah_service;
 static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
 static uint8_t                         auto_data_up;
-static uint16_t m_data_heel, m_data_toe;
 static bool trigger_up, trigger_down = false;
+static uint16_t                        m_data_heel, m_data_toe;
 
 //APP_TIMER_DEF(m_timer_auto_wah);
 //APP_TIMER_DEF(m_timer_auto_level);
@@ -308,7 +308,7 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
         p_wah->evt_handler(p_wah, &evt);
     }
 
-    // If PRESET 1 data written
+    // If CALIBRATION data written
     if (p_evt_write->handle == p_wah->calibration_handles.value_handle)
     {
         evt.evt_type = BLE_WAH_EVT_CALIBRATION_RECEIVED;
@@ -1705,7 +1705,7 @@ void set_impedance(uint8_t impedance)
 uint32_t check_mode(uint8_t mode)
 {
     ret_code_t err_code;
-
+   
     switch(mode)
     {
         case MANUAL_WAH_MODE:
@@ -1899,38 +1899,86 @@ void timer_start()
 
 }
 
-void update_calibration(uint8_t state, uint8_t gain, uint16_t data)
+void update_calibration(uint8_t * p_data, uint16_t size)
 {
-    NRF_LOG_INFO("calibration state = %d", state);
-    NRF_LOG_INFO("calibration data = %d", data);
-    NRF_LOG_INFO("calibration gain = %d", gain);
-    
-    switch(state)
+    uint8_t exp_state          = p_data[0];
+    uint8_t wah_state          = p_data[1];
+    uint16_t data              = p_data[2] | (uint16_t)p_data[3] << 8; 
+    uint8_t gain               = p_data[4];
+    uint8_t exp_curve_response = p_data[5];
+    uint8_t wah_curve_response = p_data[6];
+    uint8_t source             = p_data[7];
+
+    NRF_LOG_INFO("EXP_CALIBRATION_STATUS = %d", exp_state);
+    NRF_LOG_INFO("WAH_CALIBRATION_STATUS = %d", wah_state);
+    NRF_LOG_INFO("DATA                   = %d", data);
+    NRF_LOG_INFO("GAIN                   = %d", gain);
+    NRF_LOG_INFO("EXP_CURVE_RESPONSE     = %d", exp_curve_response);
+    NRF_LOG_INFO("WAH_CURVE_RESPONSE     = %d", wah_curve_response);
+    NRF_LOG_INFO("SOURCE                 = %d", source);
+
+    // NEED SOURCE FIELD
+    if(source == WAH)
     {
-        case GO_DOWN:
-          reset_config_preset();
-          saadc_start(m_wah_service, SAMPLING_20MS, WAH); //WAH
-          break;
+        NRF_LOG_INFO("WAH_CALIBRATION_INPROGRESS");
 
-        case GO_UP:
-          m_data_heel = data;
-          //Change gain
-          set_gain_wah(gain);
-          //m_data_heel = get_saadc_data();
-          break;
+        switch( wah_state )
+        {
+          case GO_DOWN:
+            reset_config_preset();
+            saadc_start(m_wah_service, SAMPLING_20MS, WAH); //WAH
+            break;
 
-        case DONE:
-          m_data_toe = data;
-          //m_data_toe = get_saadc_data();
-          reset_config_preset();
-          NRF_LOG_INFO("data_heel get = %d", m_data_heel);
-          NRF_LOG_INFO("data_toe get = %d", m_data_toe);
-          write_calibration_done(state, m_data_heel, m_data_toe, gain);
-          break;
+          case GO_UP:
+            m_data_heel = data;
+            //Change gain
+            set_gain_wah(gain);
+            //m_data_heel = get_saadc_data();
+            break;
 
-        default:
-          break;
+          case DONE:
+            m_data_toe  = data;
+            //m_data_toe = get_saadc_data();
+            NRF_LOG_INFO("data_heel get = %d", m_data_heel);
+            NRF_LOG_INFO("data_toe get = %d", m_data_toe);
+            write_calibration_done_wah(wah_state, m_data_heel, m_data_toe, gain);
+            break;
+
+          case RESPONSE_TYPE:
+            NRF_LOG_INFO("WAH_RESPONSE_TYPE");
+            //Deal with response type (fill vector exp and/or log)
+            //stroke_response_fill_vector_wah(wah_curve_response, m_data_heel, m_data_toe);
+            //Restart effect in use
+            config_preset();
+            break;
+
+          default:
+            break;
+        }
+
     }
 
+    if(source == EXP)
+    {
+        NRF_LOG_INFO("EXP_CALIBRATION_INPROGRESS");
+        
+        switch( exp_state )
+        {
+          case RESPONSE_TYPE:
+              NRF_LOG_INFO("EXP_RESPONSE_TYPE");
+              //Deal with response type (fill vector exp and/or log)
+              stroke_response_fill_vectors(exp_curve_response, 0, 1023);
+            break;
+
+          default:
+            break;
+        }
+    }
+
+
+
+
+    
+    
 }
 

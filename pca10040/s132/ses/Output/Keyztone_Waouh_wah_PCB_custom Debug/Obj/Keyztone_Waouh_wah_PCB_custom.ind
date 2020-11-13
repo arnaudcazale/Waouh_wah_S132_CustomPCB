@@ -58,6 +58,7 @@
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/saadc.o"
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/drv_AD5263.o"
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/drv_DS1882.o"
+"Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/stroke.o"
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/SEGGER_RTT.o"
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/SEGGER_RTT_Syscalls_SES.o"
 "Output/Keyztone_Waouh_wah_PCB_custom Debug/Obj/SEGGER_RTT_printf.o"

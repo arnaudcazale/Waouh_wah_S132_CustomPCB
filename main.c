@@ -530,11 +530,8 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
 
         case BLE_WAH_EVT_CALIBRATION_RECEIVED:
             NRF_LOG_INFO("BLE_WAH_EVT_CALIBRATION_RECEIVED");
-            //NRF_LOG_HEXDUMP_INFO(p_evt->p_data, p_evt->length);
-            uint8_t state = p_evt->p_data[0];
-            uint16_t data = p_evt->p_data[1] | (uint16_t)p_evt->p_data[2] << 8; 
-            uint8_t gain  = p_evt->p_data[3];
-            update_calibration(state, gain, data);
+            NRF_LOG_HEXDUMP_INFO(p_evt->p_data, p_evt->length);
+            update_calibration(p_evt->p_data, p_evt->length);
             break;
  
 
@@ -1360,6 +1357,8 @@ int main(void)
 
     gpio_init();
     timers_init();
+
+
     buttons_leds_init(&erase_bonds, &restore_factory);
     power_management_init();
     load_presets_from_flash(restore_factory);
