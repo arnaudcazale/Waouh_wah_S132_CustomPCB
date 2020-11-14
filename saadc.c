@@ -127,12 +127,24 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
           
           if(m_wah_service->is_pedal_value_notif_enabled)
           {
-            pedal_data_value_update(m_wah_service, new_data);
+              pedal_data_value_update(m_wah_service, new_data);
           }
-          if(!m_wah_service->is_calibration_notif_enabled)
-          {
-            update_preset(new_data);
-          }
+          
+          new_data = map_calib(new_data);
+          NRF_LOG_INFO("mapped_data = %d", new_data);
+          update_preset(new_data);
+
+
+//          if(!m_wah_service->is_calibration_notif_enabled)
+//          {
+//              update_preset(new_data);
+//          }else if(m_wah_service->is_calibration_notif_enabled)
+//          {
+//              
+//              new_data = map_data(new_data);
+//              NRF_LOG_INFO("mapped_data = %d", new_data);
+//              update_preset(new_data);
+//          }
           
         }
 

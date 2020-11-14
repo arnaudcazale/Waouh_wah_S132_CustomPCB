@@ -5,36 +5,43 @@ float out[255];
 float out4log[255];
 float out_calib[255];
 float linear_in[255];
-float log_in[255];
-float exp_in[255];
+float loga[255];
+float expo[255];
 
 float step_out = 1024/255;
 
 static int _min_calib;
 static int _max_calib;
+static int _source;
+static int _curve;
+
+//extern volatile calib_config_8_t       calibration;
+//extern volatile stroke_response_t      stroke_response;
 
 /*******************************************************************************
 
 *******************************************************************************/
-void stroke_response_fill_vectors(curve_response_t exp_curve_response, uint16_t min_calib, uint16_t max_calib)
+float* stroke_response_fill_vectors(source_t source, curve_t curve_response, uint16_t min_calib, uint16_t max_calib)
 {
     _min_calib = min_calib;
     _max_calib = max_calib;
+    _source = source;
+    _curve = curve_response;
 
     fill_x_vector();
 
-    switch( exp_curve_response )
+    switch( curve_response )
     {
       case RAW:
        
         break;
 
       case LOG:
-          fill_log_vector();
+          return fill_log_vector();
         break;
 
       case EXPO:
-          fill_expo_vector();
+          return fill_expo_vector();
         break;
 
       default:
@@ -65,44 +72,87 @@ void fill_x_vector()
 /*******************************************************************************
 
 *******************************************************************************/
-void fill_log_vector()
+float* fill_log_vector()
 {
     //Fill log vector
     for(int i=0; i<255; i++)
     {
         if( i == 0)
         {
-            log_in[i] = 0;
+            loga[i] = 0;
         }else
         {
-            log_in[i] = logf(out4log[i]);
+            loga[i] = logf(out4log[i]);
         }
     }
 
     //Mapping from calib
     for(int i=0; i<255; i++)
     {
-        log_in[i] = mapfloat(log_in[i], 0, log_in[254], _min_calib, _max_calib);
+        loga[i] = mapfloat(loga[i], 0, loga[254], _min_calib, _max_calib);
     }
-    
+
+    return loga;
 }
 
 /*******************************************************************************
 
 *******************************************************************************/
-void fill_expo_vector()
+float* fill_expo_vector()
 {
     //Fill expo vector
     for(int i=0; i<255; i++)
     {
-        exp_in[i] = (exp(out[i]/100));
+        expo[i] = (exp(out[i]/100));
     }
 
     //Mapping from calib
     for(int i=0; i<255; i++)
     {
-        exp_in[i] = mapfloat(exp_in[i], 0, exp_in[254], _min_calib, _max_calib);
+        expo[i] = mapfloat(expo[i], 0, expo[254], _min_calib, _max_calib);
     }
 
+    return expo;
     //NRF_LOG_HEXDUMP_INFO(exp_in, 255);
+}
+
+
+/*******************************************************************************
+
+*******************************************************************************/
+uint16_t map_calib(uint16_t data)
+{
+    if(_source == EXP)
+    {
+        switch(_curve)
+        {
+          case LOG:
+              data = (uint16_t)FmultiMap(data, out_calib, loga , 255);
+            break;
+
+          case EXPO:
+              data = (uint16_t)FmultiMap(data, out_calib, expo , 255);
+            break;
+
+          default:
+            break;
+        }
+    }
+
+    if(_source == WAH)
+    {
+        switch(_curve)
+        {
+          case LOG:
+            break;
+
+          case EXPO:
+            break;
+
+          default:
+            break;
+        }
+    }
+
+    return data;
 }

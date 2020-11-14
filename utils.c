@@ -10,7 +10,6 @@ static preset_config_32_t preset_32[PRESET_NUMBER];
 preset_config_8_t preset[PRESET_NUMBER];
 calib_config_32_t calibration_32;
 calib_config_8_t calibration;
-//stroke_response_config_t stroke_response;
 
 /*******************************************************************************
 

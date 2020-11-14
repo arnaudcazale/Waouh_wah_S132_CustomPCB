@@ -9,6 +9,7 @@
 #include "nrf_drv_timer.h"
 
 #include "ble_wah.h"
+#include "stroke.h"
 
 enum
 {

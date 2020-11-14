@@ -12,6 +12,8 @@
 extern volatile preset_config_8_t      preset[PRESET_NUMBER];
 extern volatile calib_config_8_t       calibration;
 extern volatile uint8_t                m_preset_selection_value;
+stroke_response_t                      stroke_response;
+
 static ble_wah_t *                     m_wah_service;
 static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
@@ -1901,13 +1903,13 @@ void timer_start()
 
 void update_calibration(uint8_t * p_data, uint16_t size)
 {
-    uint8_t exp_state          = p_data[0];
-    uint8_t wah_state          = p_data[1];
-    uint16_t data              = p_data[2] | (uint16_t)p_data[3] << 8; 
-    uint8_t gain               = p_data[4];
-    uint8_t exp_curve_response = p_data[5];
-    uint8_t wah_curve_response = p_data[6];
-    uint8_t source             = p_data[7];
+    uint8_t exp_state                    = p_data[0];
+    uint8_t wah_state                    = p_data[1];
+    uint16_t data                        = p_data[2] | (uint16_t)p_data[3] << 8; 
+    uint8_t gain                         = p_data[4];
+    curve_t  exp_curve_response          = p_data[5];
+    curve_t  wah_curve_response          = p_data[6];
+    source_t source                      = p_data[7];
 
     NRF_LOG_INFO("EXP_CALIBRATION_STATUS = %d", exp_state);
     NRF_LOG_INFO("WAH_CALIBRATION_STATUS = %d", wah_state);
@@ -1947,7 +1949,8 @@ void update_calibration(uint8_t * p_data, uint16_t size)
           case RESPONSE_TYPE:
             NRF_LOG_INFO("WAH_RESPONSE_TYPE");
             //Deal with response type (fill vector exp and/or log)
-            //stroke_response_fill_vector_wah(wah_curve_response, m_data_heel, m_data_toe);
+            //memcpy( stroke_response.VECTOR_WAH, stroke_response_fill_vectors(wah_curve_response, 0, 1023), sizeof(float)*255 );
+            //write_stroke_response(wah_curve_response);
             //Restart effect in use
             config_preset();
             break;
@@ -1967,7 +1970,9 @@ void update_calibration(uint8_t * p_data, uint16_t size)
           case RESPONSE_TYPE:
               NRF_LOG_INFO("EXP_RESPONSE_TYPE");
               //Deal with response type (fill vector exp and/or log)
-              stroke_response_fill_vectors(exp_curve_response, 0, 1023);
+              //memcpy( stroke_response.VECTOR_EXP, stroke_response_fill_vectors(source, exp_curve_response, 0, 1023), sizeof(float)*255 );
+              stroke_response_fill_vectors(source, exp_curve_response, 0, 1023);
+              //write_stroke_response(exp_curve_response);
             break;
 
           default:

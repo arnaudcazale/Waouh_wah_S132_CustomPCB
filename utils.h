@@ -14,6 +14,7 @@
 #include "stroke.h"
 
 
+
 #define RECORD_KEY_PRST        0x2222
 #define FILE_ID_PRST_BASE      0x1110
 //Flash info for PRESET_1
@@ -115,11 +116,11 @@ enum
     RESPONSE_TYPE
 };
 
-enum
+typedef enum
 {
     EXP = 2,
     WAH = 3,
-};
+}source_t;
 
 #ifdef __GNUC__
     #ifdef PACKED
@@ -197,8 +198,8 @@ typedef PACKED( struct
     uint8_t            WAH_CALIBRATION_STATUS;
     uint16_t           DATA;
     uint8_t            GAIN;    
-    curve_response_t   EXP_CURVE_RESPONSE;    
-    curve_response_t   WAH_CURVE_RESPONSE;  
+    curve_t            EXP_CURVE_RESPONSE;    
+    curve_t            WAH_CURVE_RESPONSE;  
     uint8_t            SOURCE;
     uint16_t           DATA_HEEL;
     uint16_t           DATA_TOE;

@@ -10,7 +10,7 @@
  </FrameBufferWindow>
  <Memory1>
   <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_template_pca10040_s132" radix="16" sizeText="" addressText=""/>
-  <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="Keyztone_Waouh_wah_PCB_custom" radix="16" sizeText="" addressText=""/>
+  <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="Keyztone_Waouh_wah_PCB_custom" radix="16" sizeText="4" addressText="0x2000471c"/>
  </Memory1>
  <Memory2>
   <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_template_pca10040_s132" radix="16" sizeText="" addressText=""/>
@@ -64,8 +64,11 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint numelements="0" expression="preset" evalMode="1" name="preset" radix="16" linenumber="625" filename="../../../utils.c" list=""/>
-   <Watchpoint numelements="4" expression="preset_32" evalMode="2" name="preset_32" radix="16" linenumber="625" filename="../../../utils.c" list=""/>
+   <Watchpoint numelements="255" expression="out" evalMode="2" name="out" radix="-1" linenumber="54" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="log_in" evalMode="2" name="log_in" radix="10" linenumber="78" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="exp_in" evalMode="2" name="exp_in" radix="10" linenumber="98" filename="../../../stroke.c" list=""/>
+   <Watchpoint expression="_min_calib" name="_min_calib" radix="10" linenumber="60" filename="../../../stroke.c"/>
+   <Watchpoint expression="_max_calib" name="_max_calib" radix="10" linenumber="60" filename="../../../stroke.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -78,13 +81,13 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1348" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1334" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="66" y="1969" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="1940" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="18" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="44" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="288" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="13" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="6" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="32" y="23" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1346" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="0" top="1335" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1969" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="1949" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="671" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="653" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="199" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="73" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.c" selected="1" top="66" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="8" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.h" selected="0" top="3" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="26" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_DS1882.c" selected="0" top="21" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/nrf_error.h" selected="0" top="46" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="26" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_AD5263.c" selected="0" top="0" codecName="Default"/>
@@ -128,6 +131,7 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/fifo/app_fifo.c" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="499" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/libraries/bsp/bsp.c" selected="0" top="472" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="247" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/ble/nrf_ble_gatt/nrf_ble_gatt.c" selected="0" top="239" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="6" y="645" useTextEdit="1" useBinaryEdit="0" left="0" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 4.16/include/math.h" selected="0" top="632" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="Keyztone_Waouh_wah_PCB_custom" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/Nordic/SDK/nRF5_SDK_15.0.0_a53641a/components/ble/ble_services/ble_dis" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
