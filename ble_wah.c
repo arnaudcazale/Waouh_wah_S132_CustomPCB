@@ -12,14 +12,13 @@
 extern volatile preset_config_8_t      preset[PRESET_NUMBER];
 extern volatile calib_config_8_t       calibration;
 extern volatile uint8_t                m_preset_selection_value;
-stroke_response_t                      stroke_response;
+//stroke_response_t                      stroke_response;
 
 static ble_wah_t *                     m_wah_service;
 static bool                            timer_is_running;
 static uint8_t                         cpt_timer;
 static uint8_t                         auto_data_up;
 static bool trigger_up, trigger_down = false;
-static uint16_t                        m_data_heel, m_data_toe;
 
 //APP_TIMER_DEF(m_timer_auto_wah);
 //APP_TIMER_DEF(m_timer_auto_level);
@@ -1903,28 +1902,28 @@ void timer_start()
 
 void update_calibration(uint8_t * p_data, uint16_t size)
 {
-    uint8_t exp_state                    = p_data[0];
-    uint8_t wah_state                    = p_data[1];
-    uint16_t data                        = p_data[2] | (uint16_t)p_data[3] << 8; 
-    uint8_t gain                         = p_data[4];
-    curve_t  exp_curve_response          = p_data[5];
-    curve_t  wah_curve_response          = p_data[6];
-    source_t source                      = p_data[7];
+    calibration.EXP_STATUS          = p_data[0];
+    calibration.WAH_STATUS          = p_data[1];
+    calibration.DATA                = p_data[2] | (uint16_t)p_data[3] << 8; 
+    calibration.GAIN                = p_data[4];
+    calibration.EXP_CURVE_RESPONSE  = p_data[5];
+    calibration.WAH_CURVE_RESPONSE  = p_data[6];
+    calibration.SOURCE              = p_data[7];
 
-    NRF_LOG_INFO("EXP_CALIBRATION_STATUS = %d", exp_state);
-    NRF_LOG_INFO("WAH_CALIBRATION_STATUS = %d", wah_state);
-    NRF_LOG_INFO("DATA                   = %d", data);
-    NRF_LOG_INFO("GAIN                   = %d", gain);
-    NRF_LOG_INFO("EXP_CURVE_RESPONSE     = %d", exp_curve_response);
-    NRF_LOG_INFO("WAH_CURVE_RESPONSE     = %d", wah_curve_response);
-    NRF_LOG_INFO("SOURCE                 = %d", source);
+    NRF_LOG_INFO("EXP_CALIBRATION_STATUS = %d", calibration.EXP_STATUS);
+    NRF_LOG_INFO("WAH_CALIBRATION_STATUS = %d", calibration.WAH_STATUS);
+    NRF_LOG_INFO("DATA                   = %d", calibration.DATA);
+    NRF_LOG_INFO("GAIN                   = %d", calibration.GAIN);
+    NRF_LOG_INFO("EXP_CURVE_RESPONSE     = %d", calibration.EXP_CURVE_RESPONSE);
+    NRF_LOG_INFO("WAH_CURVE_RESPONSE     = %d", calibration.WAH_CURVE_RESPONSE);
+    NRF_LOG_INFO("SOURCE                 = %d", calibration.SOURCE);
 
     // NEED SOURCE FIELD
-    if(source == WAH)
+    if(calibration.SOURCE == WAH)
     {
         NRF_LOG_INFO("WAH_CALIBRATION_INPROGRESS");
 
-        switch( wah_state )
+        switch( calibration.WAH_STATUS )
         {
           case GO_DOWN:
             reset_config_preset();
@@ -1932,24 +1931,22 @@ void update_calibration(uint8_t * p_data, uint16_t size)
             break;
 
           case GO_UP:
-            m_data_heel = data;
+            calibration.DATA_HEEL = calibration.DATA;
             //Change gain
-            set_gain_wah(gain);
+            set_gain_wah(calibration.GAIN);
             //m_data_heel = get_saadc_data();
             break;
 
           case DONE:
-            m_data_toe  = data;
+            calibration.DATA_TOE  = calibration.DATA;
             //m_data_toe = get_saadc_data();
-            NRF_LOG_INFO("data_heel get = %d", m_data_heel);
-            NRF_LOG_INFO("data_toe get = %d", m_data_toe);
-            write_calibration_done_wah(wah_state, m_data_heel, m_data_toe, gain);
+            //NRF_LOG_INFO("calibration.DATA_HEEL = %d", calibration.DATA_HEEL);
+            //NRF_LOG_INFO("calibration.DATA_TOE = %d", calibration.DATA_TOE);
             break;
 
           case RESPONSE_TYPE:
-            NRF_LOG_INFO("WAH_RESPONSE_TYPE");
-            //Deal with response type (fill vector exp and/or log)
-            //memcpy( stroke_response.VECTOR_WAH, stroke_response_fill_vectors(wah_curve_response, 0, 1023), sizeof(float)*255 );
+            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, 0, 1023);   //To do -> change 0, 1023 by DATA_HELL & TOE
+            write_calibration_done();
             //write_stroke_response(wah_curve_response);
             //Restart effect in use
             config_preset();
@@ -1961,17 +1958,17 @@ void update_calibration(uint8_t * p_data, uint16_t size)
 
     }
 
-    if(source == EXP)
+    if(calibration.SOURCE == EXP)
     {
         NRF_LOG_INFO("EXP_CALIBRATION_INPROGRESS");
         
-        switch( exp_state )
+        switch( calibration.EXP_STATUS )
         {
           case RESPONSE_TYPE:
-              NRF_LOG_INFO("EXP_RESPONSE_TYPE");
+              //NRF_LOG_INFO("EXP_RESPONSE_TYPE");
               //Deal with response type (fill vector exp and/or log)
-              //memcpy( stroke_response.VECTOR_EXP, stroke_response_fill_vectors(source, exp_curve_response, 0, 1023), sizeof(float)*255 );
-              stroke_response_fill_vectors(source, exp_curve_response, 0, 1023);
+              stroke_response_fill_vectors(calibration.EXP_CURVE_RESPONSE, 0, 1023);  //To do -> change 0, 1023 by DATA_HELL & TOE from EXP calibration (2 create)
+              write_calibration_done();
               //write_stroke_response(exp_curve_response);
             break;
 

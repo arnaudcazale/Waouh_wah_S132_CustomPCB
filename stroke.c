@@ -12,25 +12,23 @@ float step_out = 1024/255;
 
 static int _min_calib;
 static int _max_calib;
-static int _source;
 static int _curve;
 
-//extern volatile calib_config_8_t       calibration;
+extern volatile calib_config_8_t       calibration;
 //extern volatile stroke_response_t      stroke_response;
 
 /*******************************************************************************
 
 *******************************************************************************/
-float* stroke_response_fill_vectors(source_t source, curve_t curve_response, uint16_t min_calib, uint16_t max_calib)
+float* stroke_response_fill_vectors(curve_t curve_response, uint16_t min_calib, uint16_t max_calib)
 {
     _min_calib = min_calib;
     _max_calib = max_calib;
-    _source = source;
     _curve = curve_response;
 
     fill_x_vector();
 
-    switch( curve_response )
+    switch( _curve )
     {
       case RAW:
        
@@ -120,11 +118,14 @@ float* fill_expo_vector()
 /*******************************************************************************
 
 *******************************************************************************/
-uint16_t map_calib(uint16_t data)
+uint16_t map_calib(uint16_t data, uint8_t source)
 {
-    if(_source == EXP)
+//    NRF_LOG_INFO("map_calib source %d", source);
+//    NRF_LOG_INFO("map_calib calibration.EXP_CURVE_RESPONSE %d", calibration.EXP_CURVE_RESPONSE);
+
+    if(source == EXP)
     {
-        switch(_curve)
+        switch(calibration.EXP_CURVE_RESPONSE)
         {
           case LOG:
               data = (uint16_t)FmultiMap(data, out_calib, loga , 255);
@@ -139,14 +140,16 @@ uint16_t map_calib(uint16_t data)
         }
     }
 
-    if(_source == WAH)
+    if(source == WAH)
     {
-        switch(_curve)
+        switch(calibration.WAH_CURVE_RESPONSE)
         {
           case LOG:
+              data = (uint16_t)FmultiMap(data, out_calib, loga , 255);
             break;
 
           case EXPO:
+              data = (uint16_t)FmultiMap(data, out_calib, expo , 255);
             break;
 
           default:

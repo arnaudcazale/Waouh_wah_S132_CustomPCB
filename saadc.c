@@ -1,6 +1,6 @@
 #include "saadc.h"
 
-static uint8_t               m_input;
+static source_t              m_source;
 static nrf_saadc_value_t     m_buffer_pool[2][SAMPLES_IN_BUFFER];
 static nrf_saadc_value_t     m_adc_buffer;
 static nrf_ppi_channel_t     m_ppi_channel;
@@ -33,8 +33,8 @@ void saadc_init()
     ret_code_t err_code;
 
     nrf_saadc_channel_config_t channel_config =
-    NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(m_input);
-    NRF_LOG_INFO("SAADC_INPUT = %d", m_input);
+    NRF_DRV_SAADC_DEFAULT_CHANNEL_CONFIG_SE(m_source);
+    NRF_LOG_INFO("SAADC_INPUT = %d", m_source);
 
     err_code = nrf_drv_saadc_init(NULL, saadc_callback);
     APP_ERROR_CHECK(err_code);
@@ -123,28 +123,19 @@ void saadc_callback(nrf_drv_saadc_evt_t const * p_event)
 
         if( ( new_data < (m_data - MARGE_DATA_IN) ) || ( new_data > (m_data + MARGE_DATA_IN) ))
         {
-          NRF_LOG_INFO("saadc_data = %d", new_data);
+          //NRF_LOG_INFO("saadc_data = %d", new_data);
           
+          if(!m_wah_service->is_calibration_notif_enabled)
+          {
+              new_data = map_calib(new_data, m_source);
+              NRF_LOG_INFO("mapped_data = %d", new_data);
+              update_preset(new_data);
+          }
+
           if(m_wah_service->is_pedal_value_notif_enabled)
           {
               pedal_data_value_update(m_wah_service, new_data);
           }
-          
-          new_data = map_calib(new_data);
-          NRF_LOG_INFO("mapped_data = %d", new_data);
-          update_preset(new_data);
-
-
-//          if(!m_wah_service->is_calibration_notif_enabled)
-//          {
-//              update_preset(new_data);
-//          }else if(m_wah_service->is_calibration_notif_enabled)
-//          {
-//              
-//              new_data = map_data(new_data);
-//              NRF_LOG_INFO("mapped_data = %d", new_data);
-//              update_preset(new_data);
-//          }
           
         }
 
@@ -180,7 +171,7 @@ void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time, uint8_t input)
 {
     m_wah_service =   wah_service; 
     m_sampling_time = sampling_time;
-    m_input = input;
+    m_source = input;
     saadc_init();
     saadc_sampling_event_init();
     saadc_sampling_event_enable();
