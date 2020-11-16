@@ -266,7 +266,7 @@ ret_code_t write_factory_presets()
     calibration_32.EXP_CURVE_RESPONSE = RAW;
     calibration_32.WAH_CURVE_RESPONSE = RAW;
     calibration_32.DATA_HEEL = 0;
-    calibration_32.DATA_TOE  = 0;
+    calibration_32.DATA_TOE  = 1023;
 
     //flash_writing = true;
     write_calibration_config();
@@ -515,7 +515,7 @@ void load_flash_config()
     calibration.DATA_TOE                            = calibration_32.DATA_TOE;
 
     //Fill vecrtors
-    stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, 0, 1023);    //To do -> change 0, 1023 by DATA_HELL & TOE
+    stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);    
     stroke_response_fill_vectors(calibration.EXP_CURVE_RESPONSE, 0, 1023);    //To do -> change 0, 1023 by DATA_HELL & TOE from EXP calibration (2 create)
 
     #ifdef DEBUG_PRESET

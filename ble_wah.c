@@ -1383,48 +1383,48 @@ void update_preset(int data)
     {
         case MANUAL_WAH_MODE:
             //Set F
-            data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            data_F = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
-            data_Q =map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
+            data_Q =map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV 
-            data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
 
             //Set MIX_DRY_WET
-            data_M = map(data, 0, SAADC_RES, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            data_M = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
 
         case MANUAL_LEVEL_MODE:
             //Set F
-            data_F = map(data, 0, SAADC_RES, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            data_F = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
-            data_Q = map(data, 0, SAADC_RES, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+            data_Q = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV
-            data_L = map(data, 0, SAADC_RES, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
 
             //Set MIX_DRY_WET
-            data_M = map(data, 0, SAADC_RES, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            data_M = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
@@ -1945,7 +1945,7 @@ void update_calibration(uint8_t * p_data, uint16_t size)
             break;
 
           case RESPONSE_TYPE:
-            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, 0, 1023);   //To do -> change 0, 1023 by DATA_HELL & TOE
+            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);   
             write_calibration_done();
             //write_stroke_response(wah_curve_response);
             //Restart effect in use
