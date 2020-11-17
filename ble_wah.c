@@ -1940,14 +1940,13 @@ void update_calibration(uint8_t * p_data, uint16_t size)
           case DONE:
             calibration.DATA_TOE  = calibration.DATA;
             //m_data_toe = get_saadc_data();
-            //NRF_LOG_INFO("calibration.DATA_HEEL = %d", calibration.DATA_HEEL);
-            //NRF_LOG_INFO("calibration.DATA_TOE = %d", calibration.DATA_TOE);
+            NRF_LOG_INFO("calibration.DATA_HEEL = %d", calibration.DATA_HEEL);
+            NRF_LOG_INFO("calibration.DATA_TOE = %d", calibration.DATA_TOE);
             break;
 
           case RESPONSE_TYPE:
             stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);   
             write_calibration_done();
-            //write_stroke_response(wah_curve_response);
             //Restart effect in use
             config_preset();
             break;
