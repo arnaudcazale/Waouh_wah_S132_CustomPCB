@@ -15,7 +15,7 @@ static int _max_calib;
 static int _curve;
 
 extern volatile calib_config_8_t       calibration;
-//extern volatile stroke_response_t      stroke_response;
+extern volatile stroke_config_t        stroke;
 
 /*******************************************************************************
 
@@ -125,7 +125,7 @@ uint16_t map_calib(uint16_t data, uint8_t source)
 
     if(source == EXP)
     {
-        switch(calibration.EXP_CURVE_RESPONSE)
+        switch(stroke.EXP_CURVE_RESPONSE)
         {
           case LOG:
               data = (uint16_t)FmultiMap(data, out_calib, loga , 255);
@@ -142,7 +142,7 @@ uint16_t map_calib(uint16_t data, uint8_t source)
 
     if(source == WAH)
     {
-        switch(calibration.WAH_CURVE_RESPONSE)
+        switch(stroke.WAH_CURVE_RESPONSE)
         {
           case LOG:
               data = (uint16_t)FmultiMap(data, out_calib, loga , 255);
@@ -159,3 +159,4 @@ uint16_t map_calib(uint16_t data, uint8_t source)
 
     return data;
 }
+

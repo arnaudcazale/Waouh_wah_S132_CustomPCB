@@ -180,7 +180,7 @@ APP_TIMER_DEF(m_sec_req_timer_id);                                              
 
 static nrf_drv_pwm_t m_pwm0 = NRF_DRV_PWM_INSTANCE(0);
 
-#define APP_TIMER_SCHED_EVENT_DATA_SIZE sizeof(app_timer_event_t)
+//#define APP_TIMER_SCHED_EVENT_DATA_SIZE sizeof(app_timer_event_t)
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -533,8 +533,13 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
             NRF_LOG_HEXDUMP_INFO(p_evt->p_data, p_evt->length);
             update_calibration(p_evt->p_data, p_evt->length);
             break;
- 
 
+        case BLE_WAH_EVT_STROKE_RECEIVED:
+            NRF_LOG_INFO("BLE_WAH_EVT_STROKE_RECEIVED");
+            NRF_LOG_HEXDUMP_INFO(p_evt->p_data, p_evt->length);
+            update_stroke(p_evt->p_data, p_evt->length);
+            break;
+ 
         case BLE_WAH_EVT_NOTIF_PRESET_SELECTION:
             NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_PRESET_SELECTION - %d", p_wah_service->is_preset_selection_notif_enabled);
             if(p_wah_service->is_preset_selection_notif_enabled)
@@ -560,8 +565,12 @@ static void on_wah_evt(ble_wah_t     * p_wah_service,
             
             break;
 
-         case BLE_WAH_EVT_NOTIF_CALIBRATION:
+        case BLE_WAH_EVT_NOTIF_CALIBRATION:
             NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_CALIBRATION - %d", p_wah_service->is_calibration_notif_enabled);
+            break;
+
+        case BLE_WAH_EVT_NOTIF_STROKE:
+            NRF_LOG_INFO("ble_tms_evt_handler: BLE_WAH_EVT_NOTIF_STROKE - %d", p_wah_service->is_stroke_notif_enabled);
             break;
            
         case BLE_WAH_EVT_CONNECTED:

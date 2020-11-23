@@ -11,6 +11,7 @@
 
 extern volatile preset_config_8_t      preset[PRESET_NUMBER];
 extern volatile calib_config_8_t       calibration;
+extern volatile stroke_config_t        stroke;
 extern volatile uint8_t                m_preset_selection_value;
 //stroke_response_t                      stroke_response;
 
@@ -39,6 +40,7 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
     p_wah->is_preset_selection_notif_enabled        = false;
     p_wah->is_pedal_value_notif_enabled             = false;
     p_wah->is_calibration_notif_enabled             = false;
+    p_wah->is_stroke_notif_enabled                = false;
     p_wah->is_preset_1_notif_enabled                = false;
     p_wah->is_preset_2_notif_enabled                = false;
     p_wah->is_preset_3_notif_enabled                = false;
@@ -107,6 +109,13 @@ uint32_t ble_wah_init(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
 
     // Add Custom Value characteristic
     err_code = calibration_char_add(p_wah, p_wah_init);
+    if (err_code != NRF_SUCCESS)
+    {
+        return err_code;
+    }
+
+    // Add Custom Value characteristic
+    err_code = stroke_char_add(p_wah, p_wah_init);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
@@ -248,7 +257,7 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
         }
     }
 
-    // If PEDAL_VALUE notification enabled/disabled written
+    // If CALIBRATION notification enabled/disabled written
     if ((p_evt_write->handle == p_wah->calibration_handles.cccd_handle)
         && (p_evt_write->len == 2)
        )
@@ -263,6 +272,27 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
             if (p_wah->evt_handler != NULL)
             {
                 evt.evt_type = BLE_WAH_EVT_NOTIF_CALIBRATION;
+                p_wah->evt_handler(p_wah, &evt);
+                
+            }
+        }
+    }
+
+    // If STROKE notification enabled/disabled written
+    if ((p_evt_write->handle == p_wah->stroke_handles.cccd_handle)
+        && (p_evt_write->len == 2)
+       )
+    {
+        bool notif_enabled;
+        notif_enabled = ble_srv_is_notification_enabled(p_evt_write->data);
+
+        if (p_wah->is_stroke_notif_enabled != notif_enabled)
+        {
+            p_wah->is_stroke_notif_enabled = notif_enabled;
+
+            if (p_wah->evt_handler != NULL)
+            {
+                evt.evt_type = BLE_WAH_EVT_NOTIF_STROKE;
                 p_wah->evt_handler(p_wah, &evt);
                 
             }
@@ -313,6 +343,16 @@ static void on_write(ble_wah_t * p_wah, ble_evt_t const * p_ble_evt)
     if (p_evt_write->handle == p_wah->calibration_handles.value_handle)
     {
         evt.evt_type = BLE_WAH_EVT_CALIBRATION_RECEIVED;
+        evt.p_data = p_evt_write->data;
+        evt.length = p_evt_write->len;
+        // Call the application event handler.
+        p_wah->evt_handler(p_wah, &evt);
+    }
+
+    // If STROKE data written
+    if (p_evt_write->handle == p_wah->stroke_handles.value_handle)
+    {
+        evt.evt_type = BLE_WAH_EVT_STROKE_RECEIVED;
         evt.p_data = p_evt_write->data;
         evt.length = p_evt_write->len;
         // Call the application event handler.
@@ -881,6 +921,77 @@ static uint32_t calibration_char_add(ble_wah_t * p_wah, const ble_wah_init_t * p
     return NRF_SUCCESS;
 }
 
+/**@brief Function for adding the Custom Value characteristic.
+ *
+ * @param[in]   p_cus        Custom Service structure.
+ * @param[in]   p_cus_init   Information needed to initialize the service.
+ *
+ * @return      NRF_SUCCESS on success, otherwise an error code.
+ */
+static uint32_t stroke_char_add(ble_wah_t * p_wah, const ble_wah_init_t * p_wah_init)
+{
+    uint32_t                err_code;
+    ble_gatts_char_md_t     char_md;
+    ble_gatts_attr_md_t     cccd_md;
+    ble_gatts_attr_t        attr_char_value;
+    ble_uuid_t              ble_uuid;
+    ble_gatts_attr_md_t     attr_md;
+    //ble_wah_calib_config_t  data = p_wah_init->initial_calibration;
+
+    // Add Custom Value characteristic
+    memset(&cccd_md, 0, sizeof(cccd_md));
+
+    //  Read  operation on cccd should be possible without authentication.
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&cccd_md.write_perm);
+  
+    cccd_md.vloc       = BLE_GATTS_VLOC_STACK;
+
+    memset(&char_md, 0, sizeof(char_md));
+
+    char_md.char_props.notify        = 1;
+    char_md.char_props.read          = 1;
+    char_md.char_props.write         = 1;
+    char_md.char_props.write_wo_resp = 0;
+    char_md.p_char_user_desc         = NULL;
+    char_md.p_char_pf                = NULL;
+    char_md.p_user_desc_md           = NULL;
+    char_md.p_cccd_md                = NULL;
+    char_md.p_sccd_md                = NULL;
+
+    ble_uuid.type = p_wah->uuid_type;
+    ble_uuid.uuid = STROKE_CHAR_UUID;
+		
+    memset(&attr_md, 0, sizeof(attr_md));
+
+    BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.write_perm);
+
+    attr_md.vloc       = BLE_GATTS_VLOC_STACK;
+    attr_md.rd_auth    = 0;
+    attr_md.wr_auth    = 0;
+    attr_md.vlen       = 0;
+
+    memset(&attr_char_value, 0, sizeof(attr_char_value));
+
+    attr_char_value.p_uuid    = &ble_uuid;
+    attr_char_value.p_attr_md = &attr_md;
+    attr_char_value.init_len  = sizeof(stroke_config_t);
+    attr_char_value.init_offs = 0;
+    attr_char_value.p_value   = &stroke;
+    attr_char_value.max_len   = sizeof(stroke_config_t);
+
+    err_code = sd_ble_gatts_characteristic_add(p_wah->service_handle, &char_md,
+                                               &attr_char_value,
+                                               &p_wah->stroke_handles);
+    if (err_code != NRF_SUCCESS)
+    {
+        return err_code;
+    }
+
+    return NRF_SUCCESS;
+}
+
 
 /**@brief Function for adding the Custom Value characteristic.
  *
@@ -1230,6 +1341,8 @@ void check_data_received(uint8_t m_preset_selection_value, uint8_t * data, uint1
     preset[m_preset_selection_value].MIX_DRY_WET2    = data[INDEX_MIX_DRY_WET2];
     preset[m_preset_selection_value].FILTER_TYPE     = data[INDEX_FILTER_TYPE];
     preset[m_preset_selection_value].SOURCE          = data[INDEX_SOURCE];
+    preset[m_preset_selection_value].BYPASS_SOURCE   = data[INDEX_BYPASS_SOURCE];
+    preset[m_preset_selection_value].GAIN            = data[INDEX_GAIN];
     strcpy(preset[m_preset_selection_value].NAME,      "");
     strcpy(preset[m_preset_selection_value].NAME,      &data[INDEX_NAME]);
 
@@ -1286,6 +1399,8 @@ void check_and_save_same_preset_name(uint8_t m_preset_selection_value)
               preset[i].MIX_DRY_WET2    = preset[m_preset_selection_value].MIX_DRY_WET2;
               preset[i].FILTER_TYPE     = preset[m_preset_selection_value].FILTER_TYPE;
               preset[i].SOURCE          = preset[m_preset_selection_value].SOURCE;
+              preset[i].BYPASS_SOURCE   = preset[m_preset_selection_value].BYPASS_SOURCE;
+              preset[i].GAIN            = preset[m_preset_selection_value].GAIN;
   
               save_preset2flash(i);
               //Update Flash contents by sending notification of actual preset
@@ -1378,53 +1493,69 @@ void update_preset(int data)
 {
     uint32_t err_code;
     uint8_t data_F, data_Q, data_L, data_M;
+    uint16_t data_min, data_max;
+
+    if(preset[m_preset_selection_value].SOURCE == EXP)
+    {
+      data_min = calibration.EXP_HEEL; //To do = change calibration.EXP_HEEL/TOE by stroke.EXP_HEEL/TOE
+      data_max = calibration.EXP_TOE; //To do = change calibration.EXP_HEEL/TOE by stroke.EXP_HEEL/TOE
+    }
+
+    if(preset[m_preset_selection_value].SOURCE == WAH)
+    {
+      data_min = calibration.WAH_HEEL; //To do = change calibration.EXP_HEEL/TOE by stroke.EXP_HEEL/TOE
+      data_max = calibration.WAH_TOE; //To do = change calibration.EXP_HEEL/TOE by stroke.EXP_HEEL/TOE
+    }
    
     switch(preset[m_preset_selection_value].MODE)
     {
         case MANUAL_WAH_MODE:
             //Set F
-            data_F = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+//            NRF_LOG_INFO("data_min = %d", data_min);
+//            NRF_LOG_INFO("calibration.DATA_TOE = %d" , calibration.DATA_TOE);
+
+            data_F = map(data, data_min, data_max, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
-            data_Q =map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
+            data_Q =map(data, data_min, data_max, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV 
-            data_L = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, data_min, data_max, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
 
             //Set MIX_DRY_WET
-            data_M = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
 
         case MANUAL_LEVEL_MODE:
             //Set F
-            data_F = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+            data_F = map(data, data_min, data_max, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
             APP_ERROR_CHECK(err_code);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
             APP_ERROR_CHECK(err_code);
 
             //Set Q
-            data_Q = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
+            data_Q = map(data, data_min, data_max, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);
             err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
             APP_ERROR_CHECK(err_code);
 
             //Set LV
-            data_L = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+            data_L = map(data, data_min, data_max, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
             APP_ERROR_CHECK(err_code);
 
             //Set MIX_DRY_WET
-            data_M = map(data, calibration.DATA_HEEL, calibration.DATA_TOE, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
             err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
             APP_ERROR_CHECK(err_code);
           break;
@@ -1573,49 +1704,29 @@ void debug_preset (uint8_t m_preset_selection_value)
 {
     #ifdef DEBUG_PRESET_RUNTIME
       NRF_LOG_INFO("************ACTIVE PRESET_STRUCTURE**************");
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("PRESET_              %d", m_preset_selection_value);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("FC1 =                %d", preset[m_preset_selection_value].FC1);
-      //NRF_LOG_FLUSH();
+      NRF_LOG_INFO("PRESET_              %d", m_preset_selection_value);   
+      NRF_LOG_INFO("FC1 =                %d", preset[m_preset_selection_value].FC1);     
       NRF_LOG_INFO("FC2 =                %d", preset[m_preset_selection_value].FC2);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("Q1 =                 %d", preset[m_preset_selection_value].Q1);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("Q2 =                 %d", preset[m_preset_selection_value].Q2); 
-      //NRF_LOG_FLUSH();
+      NRF_LOG_INFO("Q1 =                 %d", preset[m_preset_selection_value].Q1); 
+      NRF_LOG_INFO("Q2 =                 %d", preset[m_preset_selection_value].Q2);    
       NRF_LOG_INFO("LV1 =                %d", preset[m_preset_selection_value].LV1);
-      //NRF_LOG_FLUSH();
       NRF_LOG_INFO("LV2 =                %d", preset[m_preset_selection_value].LV2);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("STATUS =             %d", preset[m_preset_selection_value].STATUS);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("MODE =               %d", preset[m_preset_selection_value].MODE); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("TIME_AUTO_WAH =      %d", preset[m_preset_selection_value].TIME_AUTO_WAH); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("TIME_AUTO_LEVEL =    %d", preset[m_preset_selection_value].TIME_AUTO_LEVEL);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("IMPEDANCE =          %d", preset[m_preset_selection_value].IMPEDANCE); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("COLOR =              %d", preset[m_preset_selection_value].COLOR); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[m_preset_selection_value].HIGH_VOYEL); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("LOW_VOYEL =          %d", preset[m_preset_selection_value].LOW_VOYEL);
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset[m_preset_selection_value].MIX_DRY_WET1); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[m_preset_selection_value].MIX_DRY_WET2); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("SOURCE =             %d", preset[m_preset_selection_value].SOURCE); 
-      //NRF_LOG_FLUSH();
-      NRF_LOG_INFO("NAME =               %s", preset[m_preset_selection_value].NAME); 
-      //NRF_LOG_FLUSH();
+      NRF_LOG_INFO("STATUS =             %d", preset[m_preset_selection_value].STATUS);      
+      NRF_LOG_INFO("MODE =               %d", preset[m_preset_selection_value].MODE);     
+      NRF_LOG_INFO("TIME_AUTO_WAH =      %d", preset[m_preset_selection_value].TIME_AUTO_WAH);      
+      NRF_LOG_INFO("TIME_AUTO_LEVEL =    %d", preset[m_preset_selection_value].TIME_AUTO_LEVEL);     
+      NRF_LOG_INFO("IMPEDANCE =          %d", preset[m_preset_selection_value].IMPEDANCE);       
+      NRF_LOG_INFO("COLOR =              %d", preset[m_preset_selection_value].COLOR);       
+      NRF_LOG_INFO("HIGH_VOYEL =         %d", preset[m_preset_selection_value].HIGH_VOYEL);      
+      NRF_LOG_INFO("LOW_VOYEL =          %d", preset[m_preset_selection_value].LOW_VOYEL);    
+      NRF_LOG_INFO("MIX_DRY_WET1 =       %d", preset[m_preset_selection_value].MIX_DRY_WET1);       
+      NRF_LOG_INFO("MIX_DRY_WET2 =       %d", preset[m_preset_selection_value].MIX_DRY_WET2);      
+      NRF_LOG_INFO("FILTER_TYPE =        %d", preset[m_preset_selection_value].FILTER_TYPE);     
+      NRF_LOG_INFO("SOURCE =             %d", preset[m_preset_selection_value].SOURCE);  
+      NRF_LOG_INFO("BYPASS_SOURCE =      %d", preset[m_preset_selection_value].BYPASS_SOURCE);       
+      NRF_LOG_INFO("GAIN =               %d", preset[m_preset_selection_value].GAIN);  
+      NRF_LOG_INFO("NAME =               %s", preset[m_preset_selection_value].NAME);  
       NRF_LOG_INFO("********************************************************");
-      //NRF_LOG_FLUSH();
     #endif
 }
 
@@ -1902,23 +2013,47 @@ void timer_start()
 
 void update_calibration(uint8_t * p_data, uint16_t size)
 {
-    calibration.EXP_STATUS          = p_data[0];
-    calibration.WAH_STATUS          = p_data[1];
-    calibration.DATA                = p_data[2] | (uint16_t)p_data[3] << 8; 
-    calibration.GAIN                = p_data[4];
-    calibration.EXP_CURVE_RESPONSE  = p_data[5];
-    calibration.WAH_CURVE_RESPONSE  = p_data[6];
-    calibration.SOURCE              = p_data[7];
+    calibration.SOURCE              = p_data[0];
+    calibration.EXP_STATUS          = p_data[1];
+    calibration.WAH_STATUS          = p_data[2];
+    calibration.DATA                = p_data[3] | (uint16_t)p_data[4] << 8; 
+    calibration.GAIN                = p_data[5];
 
+    NRF_LOG_INFO("SOURCE                 = %d", calibration.SOURCE);
     NRF_LOG_INFO("EXP_CALIBRATION_STATUS = %d", calibration.EXP_STATUS);
     NRF_LOG_INFO("WAH_CALIBRATION_STATUS = %d", calibration.WAH_STATUS);
     NRF_LOG_INFO("DATA                   = %d", calibration.DATA);
     NRF_LOG_INFO("GAIN                   = %d", calibration.GAIN);
-    NRF_LOG_INFO("EXP_CURVE_RESPONSE     = %d", calibration.EXP_CURVE_RESPONSE);
-    NRF_LOG_INFO("WAH_CURVE_RESPONSE     = %d", calibration.WAH_CURVE_RESPONSE);
-    NRF_LOG_INFO("SOURCE                 = %d", calibration.SOURCE);
 
-    // NEED SOURCE FIELD
+    if(calibration.SOURCE == EXP)
+    {
+        NRF_LOG_INFO("EXP_CALIBRATION_INPROGRESS");
+        
+        switch( calibration.EXP_STATUS )
+        {
+          case GO_DOWN:
+               reset_config_preset();
+               saadc_start(m_wah_service, SAMPLING_20MS, EXP); //WAH
+            break;
+
+          case GO_UP:
+               calibration.EXP_HEEL = calibration.DATA;
+            break;
+
+          case DONE:
+              calibration.EXP_TOE  = calibration.DATA;
+              NRF_LOG_INFO("calibration.EXP_HEEL = %d", calibration.EXP_HEEL);
+              NRF_LOG_INFO("calibration.EXP_TOE = %d" , calibration.EXP_TOE);
+              write_calibration_done();
+              //Restart effect in use
+              config_preset();
+            break;
+
+          default:
+            break;
+        }
+    } 
+   
     if(calibration.SOURCE == WAH)
     {
         NRF_LOG_INFO("WAH_CALIBRATION_INPROGRESS");
@@ -1931,55 +2066,94 @@ void update_calibration(uint8_t * p_data, uint16_t size)
             break;
 
           case GO_UP:
-            calibration.DATA_HEEL = calibration.DATA;
+            calibration.WAH_HEEL = calibration.DATA;
             //Change gain
             set_gain_wah(calibration.GAIN);
             //m_data_heel = get_saadc_data();
             break;
 
           case DONE:
-            calibration.DATA_TOE  = calibration.DATA;
+            calibration.WAH_TOE  = calibration.DATA;
             //m_data_toe = get_saadc_data();
-            NRF_LOG_INFO("calibration.DATA_HEEL = %d", calibration.DATA_HEEL);
-            NRF_LOG_INFO("calibration.DATA_TOE = %d", calibration.DATA_TOE);
-            break;
-
-          case RESPONSE_TYPE:
-            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);   
+            NRF_LOG_INFO("calibration.WAH_HEEL = %d", calibration.WAH_HEEL);
+            NRF_LOG_INFO("calibration.WAH_TOE = %d" , calibration.WAH_TOE);
             write_calibration_done();
             //Restart effect in use
             config_preset();
             break;
 
+//          case RESPONSE_TYPE:
+//            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);   
+//            write_calibration_done();
+//            //Restart effect in use
+//            config_preset();
+//            break;
+
           default:
             break;
         }
-
     }
+}
+ 
+void update_stroke(uint8_t * p_data, uint16_t size)
+{
+    stroke.STATUS              = p_data[0];
+    stroke.SOURCE              = p_data[1];
+    stroke.EXP_CURVE_RESPONSE  = p_data[2];
+    stroke.WAH_CURVE_RESPONSE  = p_data[3];
+    stroke.EXP_HEEL            = p_data[4]  | (uint16_t)p_data[5]  << 8; 
+    stroke.EXP_TOE             = p_data[6]  | (uint16_t)p_data[7]  << 8;
+    stroke.WAH_HEEL            = p_data[8]  | (uint16_t)p_data[9]  << 8; 
+    stroke.WAH_TOE             = p_data[10] | (uint16_t)p_data[11] << 8;
 
-    if(calibration.SOURCE == EXP)
+    NRF_LOG_INFO("STATUS                 = %d", stroke.STATUS);
+    NRF_LOG_INFO("SOURCE                 = %d", stroke.SOURCE);
+    NRF_LOG_INFO("EXP_CURVE_RESPONSE     = %d", stroke.EXP_CURVE_RESPONSE);
+    NRF_LOG_INFO("WAH_CURVE_RESPONSE     = %d", stroke.WAH_CURVE_RESPONSE);
+    NRF_LOG_INFO("EXP_HEEL               = %d", stroke.EXP_HEEL);
+    NRF_LOG_INFO("EXP_TOE                = %d", stroke.EXP_TOE);
+    NRF_LOG_INFO("WAH_HEEL               = %d", stroke.WAH_HEEL);
+    NRF_LOG_INFO("WAH_TOE                = %d", stroke.WAH_TOE);
+
+    if(stroke.SOURCE == EXP)
     {
-        NRF_LOG_INFO("EXP_CALIBRATION_INPROGRESS");
+        NRF_LOG_INFO("EXP_STROKE_INPROGRESS");
         
-        switch( calibration.EXP_STATUS )
+        switch( stroke.STATUS )
         {
-          case RESPONSE_TYPE:
-              //NRF_LOG_INFO("EXP_RESPONSE_TYPE");
-              //Deal with response type (fill vector exp and/or log)
-              stroke_response_fill_vectors(calibration.EXP_CURVE_RESPONSE, 0, 1023);  //To do -> change 0, 1023 by DATA_HELL & TOE from EXP calibration (2 create)
-              write_calibration_done();
-              //write_stroke_response(exp_curve_response);
+          case STROKE_CONFIG:
+               
+            break;
+
+          case CURVE_RESPONSE:
+              stroke_response_fill_vectors(stroke.EXP_CURVE_RESPONSE, calibration.EXP_HEEL, calibration.EXP_TOE);  //To do -> change calibration.DATA_HEEL/TOE with stroke.DATA_HEEL/TOE
+              write_stroke_done();
             break;
 
           default:
             break;
+      
         }
     }
 
+    if(stroke.SOURCE == WAH)
+    {
+        NRF_LOG_INFO("WAH_STROKE_INPROGRESS");
 
+        switch( stroke.STATUS )
+        {
+          case STROKE_CONFIG:
+               
+            break;
 
+          case CURVE_RESPONSE:
+              write_stroke_done();
+            break;
 
-    
-    
+          default:
+            break;
+      
+        }
+    }
 }
 

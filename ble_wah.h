@@ -26,6 +26,7 @@
 #define PRESET_4_CHAR_UUID             0x1405
 #define PEDAL_VALUE_CHAR_UUID          0x1406
 #define CALIBRATION_CHAR_UUID          0x1407
+#define STROKE_CHAR_UUID               0x1408
 
 #define NRF_BLE_MAX_MTU_SIZE 247
 
@@ -61,9 +62,11 @@ typedef enum
     BLE_WAH_EVT_PRESET_3_RECEIVED,
     BLE_WAH_EVT_PRESET_4_RECEIVED,
     BLE_WAH_EVT_CALIBRATION_RECEIVED,
+    BLE_WAH_EVT_STROKE_RECEIVED,
     BLE_WAH_EVT_NOTIF_PRESET_SELECTION,
     BLE_WAH_EVT_NOTIF_PEDAL_VALUE,
     BLE_WAH_EVT_NOTIF_CALIBRATION,
+    BLE_WAH_EVT_NOTIF_STROKE,
     BLE_WAH_EVT_CONFIG_RECEIVED,
     BLE_WAH_EVT_DISCONNECTED,
     BLE_WAH_EVT_CONNECTED
@@ -115,9 +118,11 @@ struct ble_wah_s
     ble_gatts_char_handles_t      preset_4_handles;
     ble_gatts_char_handles_t      pedal_value_handles;
     ble_gatts_char_handles_t      calibration_handles;
+    ble_gatts_char_handles_t      stroke_handles;
     bool                          is_preset_selection_notif_enabled;        /**< Variable to indicate if the peer has enabled notification of the characteristic.*/
     bool                          is_pedal_value_notif_enabled; 
     bool                          is_calibration_notif_enabled;
+    bool                          is_stroke_notif_enabled;
     bool                          is_preset_1_notif_enabled; 
     bool                          is_preset_2_notif_enabled; 
     bool                          is_preset_3_notif_enabled; 
@@ -150,6 +155,7 @@ static uint32_t preset_2_char_add(ble_wah_t *, const ble_wah_init_t *);
 static uint32_t preset_3_char_add(ble_wah_t *, const ble_wah_init_t *);
 static uint32_t preset_4_char_add(ble_wah_t *, const ble_wah_init_t *);
 static uint32_t calibration_char_add(ble_wah_t *, const ble_wah_init_t *);
+static uint32_t stroke_char_add(ble_wah_t *, const ble_wah_init_t *);
 
 uint32_t preset_selection_value_update(ble_wah_t *, uint8_t);
 uint32_t pedal_data_value_update(ble_wah_t *, uint16_t);
@@ -175,6 +181,7 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context);
 //void auto_wah_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 //void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 void update_calibration(uint8_t *, uint16_t);
+void update_stroke(uint8_t *, uint16_t);
 
 
 

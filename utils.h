@@ -28,6 +28,8 @@
 //Flash info for CALIBRATION structure
 #define RECORD_KEY_CALIB       0x2223
 #define FILE_ID_CALIB          0x1114
+#define RECORD_KEY_STROKE      0x2224
+#define FILE_ID_STROKE         0x1115
 
 #define PRESET_NUMBER          4
 
@@ -51,7 +53,9 @@
 #define INDEX_MIX_DRY_WET2     17
 #define INDEX_FILTER_TYPE      18
 #define INDEX_SOURCE           19
-#define INDEX_NAME             20
+#define INDEX_BYPASS_SOURCE    20
+#define INDEX_GAIN             21
+#define INDEX_NAME             22
 
 #define NAME_MAX_LENGTH        20
 
@@ -112,9 +116,22 @@ enum
     NONE,
     GO_DOWN,
     GO_UP,
-    DONE,
-    RESPONSE_TYPE
+    DONE
 };
+
+typedef enum 
+{
+    STROKE_CONFIG,
+    CURVE_RESPONSE
+}stroke_status_t;
+
+typedef enum 
+{
+    INTERNAL,
+    EXTERNAL,
+    AUTO
+}bypass_source_t;
+
 
 typedef enum
 {
@@ -150,6 +167,8 @@ typedef PACKED( struct
     __ALIGN(4) uint8_t                  MIX_DRY_WET2;
     __ALIGN(4) uint8_t                  FILTER_TYPE;
     __ALIGN(4) uint8_t                  SOURCE;
+    __ALIGN(4) uint8_t                  BYPASS_SOURCE;
+    __ALIGN(4) uint8_t                  GAIN;
     __ALIGN(4) char                     NAME[NAME_MAX_LENGTH];
    
 }) preset_config_32_t;
@@ -174,37 +193,65 @@ typedef PACKED( struct
      uint8_t                  MIX_DRY_WET2;
      uint8_t                  FILTER_TYPE;
      uint8_t                  SOURCE;
+     uint8_t                  BYPASS_SOURCE;
+     uint8_t                  GAIN;
      char                     NAME[NAME_MAX_LENGTH];
 
 }) preset_config_8_t;
 
 typedef PACKED( struct
 {
+    __ALIGN(4) uint16_t   SOURCE;
     __ALIGN(4) uint8_t    EXP_STATUS;
     __ALIGN(4) uint16_t   WAH_STATUS;
     __ALIGN(4) uint16_t   DATA;
     __ALIGN(4) uint8_t    GAIN;
-    __ALIGN(4) uint8_t    EXP_CURVE_RESPONSE;
-    __ALIGN(4) uint16_t   WAH_CURVE_RESPONSE;
-    __ALIGN(4) uint16_t   SOURCE;
-    __ALIGN(4) uint16_t   DATA_HEEL;
-    __ALIGN(4) uint16_t   DATA_TOE;
+    __ALIGN(4) uint16_t   EXP_HEEL;
+    __ALIGN(4) uint16_t   EXP_TOE;
+    __ALIGN(4) uint16_t   WAH_HEEL;
+    __ALIGN(4) uint16_t   WAH_TOE;
 
 }) calib_config_32_t;
 
 typedef PACKED( struct
 {
+    uint8_t            SOURCE;
     uint8_t            EXP_STATUS;
     uint8_t            WAH_STATUS;
     uint16_t           DATA;
     uint8_t            GAIN;    
-    curve_t            EXP_CURVE_RESPONSE;    
-    curve_t            WAH_CURVE_RESPONSE;  
-    uint8_t            SOURCE;
-    uint16_t           DATA_HEEL;
-    uint16_t           DATA_TOE;
+    uint16_t           EXP_HEEL;
+    uint16_t           EXP_TOE;
+    uint16_t           WAH_HEEL;
+    uint16_t           WAH_TOE;
 
 }) calib_config_8_t;
+
+typedef PACKED( struct
+{
+    stroke_status_t    STATUS;
+    uint8_t            SOURCE;  
+    curve_t            EXP_CURVE_RESPONSE;    
+    curve_t            WAH_CURVE_RESPONSE;  
+    uint16_t           EXP_HEEL;
+    uint16_t           EXP_TOE;
+    uint16_t           WAH_HEEL;
+    uint16_t           WAH_TOE;
+
+}) stroke_config_t;
+
+typedef PACKED( struct
+{
+    __ALIGN(4) stroke_status_t    STATUS;
+    __ALIGN(4) uint8_t            SOURCE;  
+    __ALIGN(4) curve_t            EXP_CURVE_RESPONSE;    
+    __ALIGN(4) curve_t            WAH_CURVE_RESPONSE;  
+    __ALIGN(4) uint16_t           EXP_HEEL;
+    __ALIGN(4) uint16_t           EXP_TOE;
+    __ALIGN(4) uint16_t           WAH_HEEL;
+    __ALIGN(4) uint16_t           WAH_TOE;
+
+}) stroke_config_32_t;
 
 void update_led(uint8_t led);
 
@@ -215,13 +262,17 @@ static ret_code_t check_memory(void);
 static ret_code_t write_factory_presets(void);
 static void write_preset_config(uint8_t);
 static void write_calibration_config(void);
+static void write_stroke_config(void);
 void write_calibration_done();
+void write_stroke_done();
 static ret_code_t m_fds_find_and_delete(uint16_t, uint16_t);
 static ret_code_t m_fds_write_preset(uint16_t, uint16_t, preset_config_32_t*);
 static ret_code_t m_fds_write_calibration(uint16_t, uint16_t, calib_config_32_t*);
+static ret_code_t m_fds_write_stroke(uint16_t, uint16_t, stroke_config_32_t*);
 static void load_flash_config(void);
-preset_config_32_t * m_fds_read_preset(uint16_t, uint16_t);
-calib_config_32_t *  m_fds_read_calibration(uint16_t, uint16_t);
+preset_config_32_t *  m_fds_read_preset(uint16_t, uint16_t);
+calib_config_32_t  *  m_fds_read_calibration(uint16_t, uint16_t);
+stroke_config_32_t *  m_fds_read_stroke(uint16_t, uint16_t);
 void convert_to_byte_format(void);
 void save_preset2flash(uint8_t);
 long map(long, long, long, long, long);
