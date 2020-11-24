@@ -1364,6 +1364,7 @@ int main(void)
     twi_init();
 
 
+
     gpio_init();
     timers_init();
 

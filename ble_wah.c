@@ -1511,29 +1511,13 @@ void update_preset(int data)
     {
         case MANUAL_WAH_MODE:
             //Set F
-//            NRF_LOG_INFO("data_min = %d", data_min);
-//            NRF_LOG_INFO("calibration.DATA_TOE = %d" , calibration.DATA_TOE);
-
-            data_F = map(data, data_min, data_max, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
-            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
-            APP_ERROR_CHECK(err_code);
-            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
-            APP_ERROR_CHECK(err_code);
-
-            //Set Q
-            data_Q =map(data, data_min, data_max, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
-            err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
-            APP_ERROR_CHECK(err_code);
-
-            //Set LV 
-            data_L = map(data, data_min, data_max, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
-            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
-            APP_ERROR_CHECK(err_code);
-
-            //Set MIX_DRY_WET
-            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
-            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
-            APP_ERROR_CHECK(err_code);
+            if(preset[m_preset_selection_value].BYPASS_SOURCE == AUTO)
+            {
+                auto_bypass_wah_mode(data, data_min, data_max);
+            }else{
+                map_wah_mode(data, data_min, data_max);
+            }
+            
           break;
 
         case MANUAL_LEVEL_MODE:
@@ -1555,9 +1539,9 @@ void update_preset(int data)
             APP_ERROR_CHECK(err_code);
 
             //Set MIX_DRY_WET
-            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
-            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
-            APP_ERROR_CHECK(err_code);
+//            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+//            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+//            APP_ERROR_CHECK(err_code);
           break;
 
         case AUTO_WAH_MODE:
@@ -1841,18 +1825,6 @@ uint32_t check_mode(uint8_t mode)
 
     return NRF_SUCCESS;
 }
-
-// KILL SWITCH EFFECT
-//      if(auto_data_up)
-//      {
-//          update_preset(preset[m_preset_selection_value].LV2);
-//          auto_data_up = false;
-//          
-//      }else
-//      {
-//          update_preset(preset[m_preset_selection_value].LV1);
-//          auto_data_up = true; 
-//      }
 
 /**@brief Function 
  *
@@ -2157,3 +2129,92 @@ void update_stroke(uint8_t * p_data, uint16_t size)
     }
 }
 
+void auto_bypass_wah_mode(uint16_t data, uint16_t data_min, uint16_t data_max)
+{   
+    uint32_t err_code;
+    uint8_t data_F, data_Q, data_L, data_M;
+
+    if( (data > 5) && !trigger_up)
+    {
+        trigger_up = true;
+        NRF_LOG_INFO("trigger_up");
+
+      //                for(int i = 63; i > 0; i-=4)
+      //                {
+          //NRF_LOG_INFO("i = %d", i);
+          //Set MIX_DRY_WET TO FULL WET
+      //                  data_M = i;
+      //                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+      //                  APP_ERROR_CHECK(err_code);
+      //                  nrf_delay_ms(1);
+      //                }
+
+        //Set MIX_DRY_WET TO FULL WET
+        data_M = 0;
+        err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+        APP_ERROR_CHECK(err_code);
+    }
+
+    if((data > 5) && trigger_up)
+    {
+        trigger_down = false;
+        map_wah_mode(data, data_min, data_max);
+    }
+
+    if((data < 2) && !trigger_down)
+    {
+        trigger_down = true;
+        NRF_LOG_INFO("trigger_down");
+
+      //                for(int i = 0; i < 64; i+=4)
+      //                {
+          //NRF_LOG_INFO("i = %d", i);
+          //Set MIX_DRY_WET TO FULL WET
+      //                  data_M = i;
+      //                  err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+      //                  APP_ERROR_CHECK(err_code);
+      //                  nrf_delay_ms(1);
+      //                }
+
+        //Set MIX_DRY_WET TO FULL WET
+        data_M = 63;
+        err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+        APP_ERROR_CHECK(err_code);
+
+    }
+
+    if((data < 2) && trigger_down)
+    {
+        trigger_up = false;
+    }
+
+
+}
+
+void map_wah_mode(uint16_t data, uint16_t data_min, uint16_t data_max)
+{
+    uint32_t err_code;
+    uint8_t data_F, data_Q, data_L, data_M;
+
+    //Set F
+    data_F = map(data, data_min, data_max, preset[m_preset_selection_value].FC1, preset[m_preset_selection_value].FC2);
+    err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_2, &data_F);
+    APP_ERROR_CHECK(err_code);
+    err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_3, &data_F);
+    APP_ERROR_CHECK(err_code);
+
+    //Set Q
+    data_Q =map(data, data_min, data_max, preset[m_preset_selection_value].Q1, preset[m_preset_selection_value].Q2);  
+    err_code = drv_AD5263_write(AD5263_ADDR, AD5263_CHANNEL_1, &data_Q);
+    APP_ERROR_CHECK(err_code);
+
+    //Set LV 
+    data_L = map(data, data_min, data_max, preset[m_preset_selection_value].LV1, preset[m_preset_selection_value].LV2);
+    err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_1, &data_L);
+    APP_ERROR_CHECK(err_code);
+
+                //Set MIX_DRY_WET
+    //            data_M = map(data, data_min, data_max, preset[m_preset_selection_value].MIX_DRY_WET1, preset[m_preset_selection_value].MIX_DRY_WET2);
+    //            err_code = drv_DS1882_write(DS1882_ADDR, DS1882_CHANNEL_2, &data_M);
+    //            APP_ERROR_CHECK(err_code);
+}

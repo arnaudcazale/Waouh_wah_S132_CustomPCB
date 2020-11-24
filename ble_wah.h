@@ -182,6 +182,8 @@ static void timer_event_handler(nrf_timer_event_t event_type, void* p_context);
 //void auto_level_scheduler_event_handler(void *p_event_data, uint16_t event_size);
 void update_calibration(uint8_t *, uint16_t);
 void update_stroke(uint8_t *, uint16_t);
+void auto_bypass_wah_mode(uint16_t, uint16_t, uint16_t);
+void map_wah_mode(uint16_t, uint16_t, uint16_t);
 
 
 
