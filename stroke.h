@@ -35,11 +35,14 @@ typedef enum
 //}) stroke_response_t;
 
 
-float* stroke_response_fill_vectors(curve_t, uint16_t, uint16_t);
+float* stroke_response_fill_vectors(uint8_t, curve_t, uint16_t, uint16_t);
 uint16_t map_calib (uint16_t, uint8_t);
-static void fill_x_vector();
-static float* fill_log_vector();
-static float* fill_expo_vector();
+static void fill_x_vector_exp();
+static void fill_x_vector_wah();
+static float* fill_log_vector_exp();
+static float* fill_expo_vector_exp();
+static float* fill_log_vector_wah();
+static float* fill_expo_vector_wah();
 
 
 #endif // STROKE_H__

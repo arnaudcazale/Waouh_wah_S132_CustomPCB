@@ -64,11 +64,13 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="_max_calib" name="_max_calib" radix="-1" linenumber="18" filename="../../../stroke.c"/>
-   <Watchpoint expression="_min_calib" name="_min_calib" radix="-1" linenumber="13" filename="../../../stroke.c"/>
-   <Watchpoint numelements="255" expression="expo" evalMode="2" name="expo" radix="10" linenumber="9" filename="../../../stroke.c" list=""/>
-   <Watchpoint numelements="255" expression="loga" evalMode="2" name="loga" radix="10" linenumber="8" filename="../../../stroke.c" list=""/>
-   <Watchpoint numelements="0" expression="stroke_response" evalMode="1" name="stroke_response" radix="10" linenumber="2277" filename="../../../ble_wah.c" list=""/>
+   <Watchpoint numelements="255" expression="out4log" evalMode="2" name="out4log" radix="10" linenumber="99" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="out_calib" evalMode="2" name="out_calib" radix="10" linenumber="98" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="out" evalMode="2" name="out" radix="10" linenumber="92" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="loga_wah" evalMode="2" name="loga_wah" radix="16" linenumber="10" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="loga_exp" evalMode="2" name="loga_exp" radix="-1" linenumber="8" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="expo_wah" evalMode="2" name="expo_wah" radix="-1" linenumber="11" filename="../../../stroke.c" list=""/>
+   <Watchpoint numelements="255" expression="expo_exp" evalMode="2" name="expo_exp" radix="10" linenumber="9" filename="../../../stroke.c" list=""/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -81,14 +83,14 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1365" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="1" top="1344" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="77" y="2017" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="2009" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="185" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="174" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="356" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="635" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="266" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="119" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="162" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="17" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="131" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.c" selected="0" top="108" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1370" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" selected="0" top="1362" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="40" y="2112" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.c" selected="0" top="2092" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="169" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../ble_wah.h" selected="0" top="148" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="27" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.c" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="271" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../utils.h" selected="0" top="240" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="92" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.c" selected="1" top="194" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="43" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../stroke.h" selected="0" top="23" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="129" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../saadc.c" selected="0" top="114" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="26" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_DS1882.c" selected="0" top="21" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/nrf_error.h" selected="0" top="46" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="26" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../drv_AD5263.c" selected="0" top="0" codecName="Default"/>
@@ -135,5 +137,5 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="458" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../components/softdevice/s132/headers/nrf_nvic.h" selected="0" top="453" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="449" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../../modules/nrfx/drivers/src/nrfx_twim.c" selected="0" top="429" codecName="Default"/>
  </Files>
- <ARMCrossStudioWindow activeProject="Keyztone_Waouh_wah_PCB_custom" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/Nordic/SDK/nRF5_SDK_15.0.0_a53641a/components/ble/ble_services/ble_dis" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <ARMCrossStudioWindow activeProject="Keyztone_Waouh_wah_PCB_custom" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/Nordic/SDK/nRF5_SDK_15.0.0_a53641a/components/ble/ble_services/ble_dis" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

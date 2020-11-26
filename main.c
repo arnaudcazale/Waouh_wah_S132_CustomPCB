@@ -1295,10 +1295,13 @@ static void twi_init(void)
 
 void preset_init()
 {
+    config_calibration();
+    config_stroke();
+
+    config_preset();
     m_preset_selection_value = 0;
     preset_selection_value_update(&m_wah, m_preset_selection_value);
     update_led(m_preset_selection_value);
-    config_preset();
 }
 
 
@@ -1355,6 +1358,7 @@ int main(void)
 
 
 
+
 {
     bool erase_bonds;
     bool restore_factory;
@@ -1363,11 +1367,8 @@ int main(void)
     log_init();
     twi_init();
 
-
-
     gpio_init();
     timers_init();
-
 
     buttons_leds_init(&erase_bonds, &restore_factory);
     power_management_init();

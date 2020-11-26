@@ -167,9 +167,10 @@ void check_data_received(uint8_t, uint8_t *, uint16_t);
 void update_preset(int);
 uint32_t check_mode(uint8_t);
 void config_preset();
+void config_calibration();
+void config_stroke();
 void reset_config_preset();
 static void check_and_save_same_preset_name(uint8_t);
-static void debug_preset(uint8_t);
 static void send_notif(uint8_t);
 static void set_filter_type(uint8_t);
 static void set_gain_wah(uint8_t);
@@ -184,6 +185,9 @@ void update_calibration(uint8_t *, uint16_t);
 void update_stroke(uint8_t *, uint16_t);
 void auto_bypass_wah_mode(uint16_t, uint16_t, uint16_t);
 void map_wah_mode(uint16_t, uint16_t, uint16_t);
+static void debug_preset(uint8_t);
+static void debug_calibration();
+static void debug_stroke();
 
 
 

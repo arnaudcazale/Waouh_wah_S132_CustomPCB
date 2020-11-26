@@ -184,7 +184,7 @@ ret_code_t write_factory_presets()
     preset_32[0].FILTER_TYPE     = LOW_PASS;
     preset_32[0].SOURCE          = EXP;
     preset_32[0].BYPASS_SOURCE   = INTERNAL;
-    preset_32[0].GAIN            = 0;
+    preset_32[0].GAIN            = 128;
     strcpy(preset_32[0].NAME, "PRESET_1");
 
     //flash_writing = true;
@@ -210,7 +210,7 @@ ret_code_t write_factory_presets()
     preset_32[1].FILTER_TYPE     = LOW_PASS;
     preset_32[1].SOURCE          = EXP;
     preset_32[1].BYPASS_SOURCE   = INTERNAL;
-    preset_32[1].GAIN            = 0;
+    preset_32[1].GAIN            = 128;
     strcpy(preset_32[1].NAME, "PRESET_2");
 
     //flash_writing = true;
@@ -236,7 +236,7 @@ ret_code_t write_factory_presets()
     preset_32[2].FILTER_TYPE     = LOW_PASS;
     preset_32[2].SOURCE          = EXP;
     preset_32[2].BYPASS_SOURCE   = INTERNAL;
-    preset_32[2].GAIN            = 0;
+    preset_32[2].GAIN            = 128;
     strcpy(preset_32[2].NAME, "PRESET_3");
 
     //flash_writing = true;
@@ -262,7 +262,7 @@ ret_code_t write_factory_presets()
     preset_32[3].FILTER_TYPE     = LOW_PASS;
     preset_32[3].SOURCE          = WAH;
     preset_32[3].BYPASS_SOURCE   = INTERNAL;
-    preset_32[3].GAIN            = 0;
+    preset_32[3].GAIN            = 128;
     strcpy(preset_32[3].NAME, "PRESET_4");
 
     //flash_writing = true;
@@ -610,7 +610,7 @@ void load_flash_config()
     calibration.WAH_HEEL                            = calibration_32.WAH_HEEL;
     calibration.WAH_TOE                             = calibration_32.WAH_TOE;
 
-    #ifdef DEBUG_PRESET
+    #ifdef DEBUG_PRESET_FLASH
           NRF_LOG_INFO("***************************************");        
           NRF_LOG_INFO("CALIBRATION");
           NRF_LOG_INFO("SOURCE =                                %d", calibration.SOURCE);
@@ -648,10 +648,10 @@ void load_flash_config()
     stroke.WAH_TOE               = stroke_32.WAH_TOE;
 
     //Fill vectors
-    stroke_response_fill_vectors(stroke.EXP_CURVE_RESPONSE, calibration.EXP_HEEL, calibration.EXP_TOE);    //To do -> change 0, 1023 by DATA_HELL & TOE from EXP stroke 
-    stroke_response_fill_vectors(stroke.WAH_CURVE_RESPONSE, calibration.WAH_HEEL, calibration.WAH_TOE);    //To do -> change 0, 1023 by DATA_HELL & TOE from EXP stroke
+    //stroke_response_fill_vectors(stroke.SOURCE, stroke.EXP_CURVE_RESPONSE, stroke.EXP_HEEL, stroke.EXP_TOE);    //To do -> change 0, 1023 by DATA_HELL & TOE from EXP stroke 
+    //stroke_response_fill_vectors(stroke.SOURCE, stroke.WAH_CURVE_RESPONSE, stroke.WAH_HEEL, stroke.WAH_TOE);    //To do -> change 0, 1023 by DATA_HELL & TOE from EXP stroke
 
-    #ifdef DEBUG_PRESET
+    #ifdef DEBUG_PRESET_FLASH
           NRF_LOG_INFO("***************************************");        
           NRF_LOG_INFO("STROKE");
           NRF_LOG_INFO("STATUS                 = %d", stroke.STATUS);
