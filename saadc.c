@@ -169,7 +169,7 @@ void saadc_sampling_event_disable(void)
 
 void saadc_start(ble_wah_t * wah_service, uint8_t sampling_time, uint8_t input)
 {
-    m_wah_service =   wah_service; 
+    m_wah_service = wah_service; 
     m_sampling_time = sampling_time;
     m_source = input;
     saadc_init();

@@ -163,6 +163,8 @@ uint32_t preset_1_update(ble_wah_t *);
 uint32_t preset_2_update(ble_wah_t *);
 uint32_t preset_3_update(ble_wah_t *);
 uint32_t preset_4_update(ble_wah_t *);
+uint32_t calibration_update(ble_wah_t *);
+uint32_t stroke_update(ble_wah_t *);
 void check_data_received(uint8_t, uint8_t *, uint16_t);
 void update_preset(int);
 uint32_t check_mode(uint8_t);

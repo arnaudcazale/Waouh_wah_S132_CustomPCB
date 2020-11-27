@@ -1263,7 +1263,7 @@ uint32_t preset_3_update(ble_wah_t * p_wah)
     return err_code;
 }
 
-/**@brief Function for adding the Custom Value characteristic.
+/**
  *
  * 
  */
@@ -1302,6 +1302,114 @@ uint32_t preset_4_update(ble_wah_t * p_wah)
         memset(&hvx_params, 0, sizeof(hvx_params));
 
         hvx_params.handle = p_wah->preset_4_handles.value_handle;
+        hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+        hvx_params.offset = gatts_value.offset;
+        hvx_params.p_len  = &gatts_value.len;
+        hvx_params.p_data = gatts_value.p_value;
+
+        err_code = sd_ble_gatts_hvx(p_wah->conn_handle, &hvx_params);
+    }
+    else
+    {
+        err_code = NRF_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
+}
+
+/**
+ *
+ * 
+ */
+uint32_t calibration_update(ble_wah_t * p_wah)
+{
+ 
+    if (p_wah == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+
+    uint32_t err_code = NRF_SUCCESS;
+    ble_gatts_value_t gatts_value;
+
+    // Initialize value struct.
+    memset(&gatts_value, 0, sizeof(gatts_value));
+
+    gatts_value.len     = sizeof(calib_config_8_t);
+    gatts_value.offset  = 0;
+    gatts_value.p_value = (uint8_t*)&calibration;
+
+    // Update database.
+    err_code = sd_ble_gatts_value_set(p_wah->conn_handle,
+                                      p_wah->calibration_handles.value_handle,
+                                      &gatts_value);
+    if (err_code != NRF_SUCCESS)
+    {
+        return err_code;
+    }
+
+    // Send value if connected and notifying.
+    if ((p_wah->conn_handle != BLE_CONN_HANDLE_INVALID)) 
+    {
+        ble_gatts_hvx_params_t hvx_params;
+ 
+        memset(&hvx_params, 0, sizeof(hvx_params));
+
+        hvx_params.handle = p_wah->calibration_handles.value_handle;
+        hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
+        hvx_params.offset = gatts_value.offset;
+        hvx_params.p_len  = &gatts_value.len;
+        hvx_params.p_data = gatts_value.p_value;
+
+        err_code = sd_ble_gatts_hvx(p_wah->conn_handle, &hvx_params);
+    }
+    else
+    {
+        err_code = NRF_ERROR_INVALID_STATE;
+    }
+
+    return err_code;
+}
+
+/**
+ *
+ * 
+ */
+uint32_t stroke_update(ble_wah_t * p_wah)
+{
+ 
+    if (p_wah == NULL)
+    {
+        return NRF_ERROR_NULL;
+    }
+
+    uint32_t err_code = NRF_SUCCESS;
+    ble_gatts_value_t gatts_value;
+
+    // Initialize value struct.
+    memset(&gatts_value, 0, sizeof(gatts_value));
+
+    gatts_value.len     = sizeof(stroke_config_t);
+    gatts_value.offset  = 0;
+    gatts_value.p_value = (uint8_t*)&stroke;
+
+    // Update database.
+    err_code = sd_ble_gatts_value_set(p_wah->conn_handle,
+                                      p_wah->stroke_handles.value_handle,
+                                      &gatts_value);
+    if (err_code != NRF_SUCCESS)
+    {
+        return err_code;
+    }
+
+    // Send value if connected and notifying.
+    if ((p_wah->conn_handle != BLE_CONN_HANDLE_INVALID)) 
+    {
+        ble_gatts_hvx_params_t hvx_params;
+ 
+        memset(&hvx_params, 0, sizeof(hvx_params));
+
+        hvx_params.handle = p_wah->stroke_handles.value_handle;
         hvx_params.type   = BLE_GATT_HVX_NOTIFICATION;
         hvx_params.offset = gatts_value.offset;
         hvx_params.p_len  = &gatts_value.len;
@@ -2025,6 +2133,9 @@ void update_calibration(uint8_t * p_data, uint16_t size)
               stroke_response_fill_vectors(EXP, stroke.EXP_CURVE_RESPONSE, stroke.EXP_HEEL, stroke.EXP_TOE);
               write_stroke_done();
 
+              //Send notif to UI with calibration data
+              calibration_update(m_wah_service);
+
               //Restart effect in use
               config_preset();
             break;
@@ -2072,16 +2183,12 @@ void update_calibration(uint8_t * p_data, uint16_t size)
 
             calib_wah_heel = true;
 
+            //Send notif to UI with calibration data
+            calibration_update(m_wah_service);
+
             //Restart effect in use
             config_preset();
             break;
-
-//          case RESPONSE_TYPE:
-//            stroke_response_fill_vectors(calibration.WAH_CURVE_RESPONSE, calibration.DATA_HEEL, calibration.DATA_TOE);   
-//            write_calibration_done();
-//            //Restart effect in use
-//            config_preset();
-//            break;
 
           default:
             break;
@@ -2119,8 +2226,12 @@ void update_stroke(uint8_t * p_data, uint16_t size)
             break;
 
           case CURVE_RESPONSE:
-              stroke_response_fill_vectors(EXP, stroke.EXP_CURVE_RESPONSE, stroke.EXP_HEEL, stroke.EXP_TOE);  //To do -> change calibration.DATA_HEEL/TOE with stroke.DATA_HEEL/TOE
+              stroke_response_fill_vectors(EXP, stroke.EXP_CURVE_RESPONSE, stroke.EXP_HEEL, stroke.EXP_TOE);  
               write_stroke_done();
+
+              //Send notif to UI with stroke data
+              stroke_update(m_wah_service);
+
             break;
 
           default:
@@ -2139,8 +2250,12 @@ void update_stroke(uint8_t * p_data, uint16_t size)
             break;
 
           case CURVE_RESPONSE:
-              stroke_response_fill_vectors(WAH, stroke.WAH_CURVE_RESPONSE, stroke.WAH_HEEL, stroke.WAH_TOE);  //To do -> change calibration.DATA_HEEL/TOE with stroke.DATA_HEEL/TOE
+              stroke_response_fill_vectors(WAH, stroke.WAH_CURVE_RESPONSE, stroke.WAH_HEEL, stroke.WAH_TOE);  
               write_stroke_done();
+
+              //Send notif to UI with stroke data
+              stroke_update(m_wah_service);
+
             break;
 
           default:
